@@ -1,7 +1,7 @@
 'use strict';
 
 module.exports = {
-	db: 'mongodb://localhost/szs-dash-search-mean-test',
+  db: 'mongodb://app:375612@localhost/szs-dash-search-mean-test',
 	port: 3001,
 	app: {
 		title: 'szs-dash-search-mean - Test Environment'
