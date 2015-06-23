@@ -5,11 +5,11 @@ module.exports = function(app) {
 	var options = require('../../app/controllers/options.server.controller');
 
 	// Options Routes
-	app.route('/options')
+	app.route('/search-api/options')
 		.get(options.list)
 		.post(users.requiresLogin, options.create);
 
-	app.route('/options/:optionId')
+	app.route('/search-api/options/:optionId')
 		.get(options.read)
 		.put(users.requiresLogin, options.hasAuthorization, options.update)
 		.delete(users.requiresLogin, options.hasAuthorization, options.delete);

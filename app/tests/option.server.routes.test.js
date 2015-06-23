@@ -9,9 +9,23 @@ var should = require('should'),
 	agent = request.agent(app);
 
 /**
+ * Option Schema
+ * This schema represents the option, option is a grouping feature of filter
+ * items.
+ * It consists of:
+ * id - a technical option name - required, unique, /[A-Za-z0-9\-_]/
+ * title - a representative name  - optional, but filled by name if not set
+ * description - a descriptive text    - optional
+ * logo - a URL to logo image of group - optional
+ * -------------------
+ * created, user - technical fields
+ */
+
+/**
  * Globals
  */
 var credentials, user, option;
+var urlPrefix = '/search-api';
 
 /**
  * Option routes tests
@@ -38,7 +52,10 @@ describe('Option CRUD tests', function() {
 		// Save a user to the test db and create new Option
 		user.save(function() {
 			option = {
-				name: 'Option Name'
+				id: 'opt',
+        title: 'title',
+        description: 'description',
+        logo: 'logo'
 			};
 
 			done();
@@ -57,7 +74,7 @@ describe('Option CRUD tests', function() {
 				var userId = user.id;
 
 				// Save a new Option
-				agent.post('/options')
+				agent.post(urlPrefix+'/options')
 					.send(option)
 					.expect(200)
 					.end(function(optionSaveErr, optionSaveRes) {
@@ -65,7 +82,7 @@ describe('Option CRUD tests', function() {
 						if (optionSaveErr) done(optionSaveErr);
 
 						// Get a list of Options
-						agent.get('/options')
+						agent.get(urlPrefix+'/options')
 							.end(function(optionsGetErr, optionsGetRes) {
 								// Handle Option save error
 								if (optionsGetErr) done(optionsGetErr);
@@ -75,7 +92,8 @@ describe('Option CRUD tests', function() {
 
 								// Set assertions
 								(options[0].user._id).should.equal(userId);
-								(options[0].name).should.match('Option Name');
+//								(options[0].name).should.match('Option Name');
+                options[0].should.containEql({_id:'opt', title:'title', logo:'logo', description:'description'});
 
 								// Call the assertion callback
 								done();
@@ -85,7 +103,7 @@ describe('Option CRUD tests', function() {
 	});
 
 	it('should not be able to save Option instance if not logged in', function(done) {
-		agent.post('/options')
+		agent.post(urlPrefix+'/options')
 			.send(option)
 			.expect(401)
 			.end(function(optionSaveErr, optionSaveRes) {
@@ -94,9 +112,9 @@ describe('Option CRUD tests', function() {
 			});
 	});
 
-	it('should not be able to save Option instance if no name is provided', function(done) {
+	it('should not be able to save Option instance if no id is provided', function(done) {
 		// Invalidate name field
-		option.name = '';
+		option.id = '';
 
 		agent.post('/auth/signin')
 			.send(credentials)
@@ -109,12 +127,13 @@ describe('Option CRUD tests', function() {
 				var userId = user.id;
 
 				// Save a new Option
-				agent.post('/options')
+				agent.post(urlPrefix+'/options')
 					.send(option)
 					.expect(400)
 					.end(function(optionSaveErr, optionSaveRes) {
 						// Set message assertion
-						(optionSaveRes.body.message).should.match('Please fill Option name');
+						should(optionSaveRes.body).have.properties({message: "Please fill Option id"});
+//            (optionSaveRes.body.message).should.match('Please fill Option id');
 						
 						// Handle Option save error
 						done(optionSaveErr);
@@ -134,7 +153,7 @@ describe('Option CRUD tests', function() {
 				var userId = user.id;
 
 				// Save a new Option
-				agent.post('/options')
+				agent.post(urlPrefix+'/options')
 					.send(option)
 					.expect(200)
 					.end(function(optionSaveErr, optionSaveRes) {
@@ -142,10 +161,10 @@ describe('Option CRUD tests', function() {
 						if (optionSaveErr) done(optionSaveErr);
 
 						// Update Option name
-						option.name = 'WHY YOU GOTTA BE SO MEAN?';
+						option.title = 'WHY YOU GOTTA BE SO MEAN?';
 
 						// Update existing Option
-						agent.put('/options/' + optionSaveRes.body._id)
+						agent.put(urlPrefix+'/options/' + optionSaveRes.body._id)
 							.send(option)
 							.expect(200)
 							.end(function(optionUpdateErr, optionUpdateRes) {
@@ -154,7 +173,7 @@ describe('Option CRUD tests', function() {
 
 								// Set assertions
 								(optionUpdateRes.body._id).should.equal(optionSaveRes.body._id);
-								(optionUpdateRes.body.name).should.match('WHY YOU GOTTA BE SO MEAN?');
+								(optionUpdateRes.body.title).should.match('WHY YOU GOTTA BE SO MEAN?');
 
 								// Call the assertion callback
 								done();
@@ -170,7 +189,7 @@ describe('Option CRUD tests', function() {
 		// Save the Option
 		optionObj.save(function() {
 			// Request Options
-			request(app).get('/options')
+			request(app).get(urlPrefix+'/options')
 				.end(function(req, res) {
 					// Set assertion
 					res.body.should.be.an.Array.with.lengthOf(1);
@@ -189,10 +208,10 @@ describe('Option CRUD tests', function() {
 
 		// Save the Option
 		optionObj.save(function() {
-			request(app).get('/options/' + optionObj._id)
+			request(app).get(urlPrefix+'/options/' + optionObj._id)
 				.end(function(req, res) {
 					// Set assertion
-					res.body.should.be.an.Object.with.property('name', option.name);
+					res.body.should.be.an.Object.with.property('title', option.title);
 
 					// Call the assertion callback
 					done();
@@ -212,7 +231,7 @@ describe('Option CRUD tests', function() {
 				var userId = user.id;
 
 				// Save a new Option
-				agent.post('/options')
+				agent.post(urlPrefix+'/options')
 					.send(option)
 					.expect(200)
 					.end(function(optionSaveErr, optionSaveRes) {
@@ -220,7 +239,7 @@ describe('Option CRUD tests', function() {
 						if (optionSaveErr) done(optionSaveErr);
 
 						// Delete existing Option
-						agent.delete('/options/' + optionSaveRes.body._id)
+						agent.delete(urlPrefix+'/options/' + optionSaveRes.body._id)
 							.send(option)
 							.expect(200)
 							.end(function(optionDeleteErr, optionDeleteRes) {
@@ -247,7 +266,7 @@ describe('Option CRUD tests', function() {
 		// Save the Option
 		optionObj.save(function() {
 			// Try deleting Option
-			request(app).delete('/options/' + optionObj._id)
+			request(app).delete(urlPrefix+'/options/' + optionObj._id)
 			.expect(401)
 			.end(function(optionDeleteErr, optionDeleteRes) {
 				// Set message assertion
