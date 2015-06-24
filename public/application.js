@@ -4,9 +4,12 @@
 angular.module(ApplicationConfiguration.applicationModuleName, ApplicationConfiguration.applicationModuleVendorDependencies);
 
 // Setting HTML5 Location Mode
-angular.module(ApplicationConfiguration.applicationModuleName).config(['$locationProvider',
-	function($locationProvider) {
+angular.module(ApplicationConfiguration.applicationModuleName).config([
+  '$locationProvider',
+  'CfgProvider',
+	function($locationProvider, CfgProvider) {
 		$locationProvider.hashPrefix('!');
+    CfgProvider.set('search_url', 'search-api/');
 	}
 ]);
 

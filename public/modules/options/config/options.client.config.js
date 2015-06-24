@@ -7,5 +7,5 @@ angular.module('options').run(['Menus',
 		Menus.addMenuItem('topbar', 'Options', 'options', 'dropdown', '/options(/create)?');
 		Menus.addSubMenuItem('topbar', 'options', 'List Options', 'options');
 		Menus.addSubMenuItem('topbar', 'options', 'New Option', 'options/create');
-	}
+  }
 ]);

@@ -1,8 +1,8 @@
 'use strict';
 
 // Options controller
-angular.module('options').controller('OptionsController', ['$scope', '$stateParams', '$location', 'Authentication', 'Options',
-	function($scope, $stateParams, $location, Authentication, Options) {
+angular.module('options').controller('OptionsController', ['$scope', '$stateParams', '$location', 'Authentication', 'Options', 'Cfg',
+	function($scope, $stateParams, $location, Authentication, Options, Cfg) {
 		$scope.authentication = Authentication;
 
 		// Create new Option
@@ -14,7 +14,7 @@ angular.module('options').controller('OptionsController', ['$scope', '$statePara
 
 			// Redirect after save
 			option.$save(function(response) {
-				$location.path('options/' + response._id);
+				$location.path(Cfg('search_url','')+'options/' + response._id);
 
 				// Clear form fields
 				$scope.name = '';
@@ -35,7 +35,7 @@ angular.module('options').controller('OptionsController', ['$scope', '$statePara
 				}
 			} else {
 				$scope.option.$remove(function() {
-					$location.path('options');
+					$location.path(Cfg('search_url', '')+'options');
 				});
 			}
 		};
@@ -45,7 +45,7 @@ angular.module('options').controller('OptionsController', ['$scope', '$statePara
 			var option = $scope.option;
 
 			option.$update(function() {
-				$location.path('options/' + option._id);
+				$location.path(Cfg('search_url', '')+'options/' + option._id);
 			}, function(errorResponse) {
 				$scope.error = errorResponse.data.message;
 			});
