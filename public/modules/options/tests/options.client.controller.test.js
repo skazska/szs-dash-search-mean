@@ -58,7 +58,7 @@
 		it('$scope.find() should create an array with at least one Option object fetched from XHR', inject(function(Options) {
 			// Create sample Option using the Options service
 			var sampleOption = new Options({
-        id: 'opt',
+        _id: 'opt',
         title: 'title',
         description: 'description',
         logo: 'logo'
@@ -81,17 +81,17 @@
 		it('$scope.findOne() should create an array with one Option object fetched from XHR using a optionId URL parameter', inject(function(Options) {
 			// Define a sample Option object
 			var sampleOption = new Options({
-        id: 'opt',
+        _id: 'opt',
         title: 'title',
         description: 'description',
         logo: 'logo'
 			});
 
 			// Set the URL parameter
-			$stateParams.optionId = '525a8422f6d0f87f0e407a33';
+			$stateParams.optionId = 'opt';
 
 			// Set GET response
-      var rx = new RegExp(Cfg('search_url','')+'options\/([0-9a-fA-F]{24})$');
+      var rx = new RegExp(Cfg('search_url','')+'options\/([A-Za-z0-9\-_]+)$');
 			$httpBackend.expectGET(rx).respond(sampleOption);
 
 			// Run controller functionality
@@ -113,15 +113,14 @@
 
 			// Create a sample Option response
 			var sampleOptionResponse = new Options({
-				_id: '525cf20451979dea2c000001',
-        id: 'opt',
+				_id: 'opt',
         title: 'title',
         description: 'description',
         logo: 'logo'
 			});
 
 			// Fixture mock form input values
-      scope.id = 'opt';
+      scope._id = 'opt';
       scope.title = 'title';
       scope.description = 'description';
       scope.logo = 'logo';
@@ -134,20 +133,19 @@
 			$httpBackend.flush();
 
 			// Test form inputs are reset
-			expect(scope.id).toEqual('opt');
-      expect(scope.title).toEqual('title');
-      expect(scope.description).toEqual('description');
-      expect(scope.logo).toEqual('logo');
+//			expect(scope._id).toEqual('');
+      expect(scope.title).toEqual('');
+      expect(scope.description).toEqual('');
+      expect(scope.logo).toEqual('');
 
 			// Test URL redirection after the Option was created
-			expect($location.path()).toBe('/'+Cfg('search_url','')+'options/' + sampleOptionResponse._id);
+			expect($location.path()).toBe('/options/' + sampleOptionResponse._id);
 		}));
 
 		it('$scope.update() should update a valid Option', inject(function(Options) {
 			// Define a sample Option put data
 			var sampleOptionPutData = new Options({
-				_id: '525cf20451979dea2c000001',
-        id: 'opt',
+				_id: 'opt',
         title: 'title',
         description: 'description',
         logo: 'logo'
@@ -157,7 +155,7 @@
 			scope.option = sampleOptionPutData;
 
 			// Set PUT response
-      var rx = new RegExp(Cfg('search_url','')+'options\/([0-9a-fA-F]{24})$');
+      var rx = new RegExp(Cfg('search_url','')+'options\/([A-Za-z0-9\-_]+)$');
       $httpBackend.expectPUT(rx).respond();
 
 			// Run controller functionality
@@ -165,20 +163,20 @@
 			$httpBackend.flush();
 
 			// Test URL location to new object
-			expect($location.path()).toBe('/'+Cfg('search_url','')+'options/' + sampleOptionPutData._id);
+			expect($location.path()).toBe('/options/' + sampleOptionPutData._id);
 		}));
 
 		it('$scope.remove() should send a DELETE request with a valid optionId and remove the Option from the scope', inject(function(Options) {
 			// Create new Option object
 			var sampleOption = new Options({
-				_id: '525a8422f6d0f87f0e407a33'
+				_id: 'opt'
 			});
 
 			// Create new Options array and include the Option
 			scope.options = [sampleOption];
 
 			// Set expected DELETE response
-      var rx = new RegExp(Cfg('search_url','')+'options\/([0-9a-fA-F]{24})$');
+      var rx = new RegExp(Cfg('search_url','')+'options\/([A-Za-z0-9\-_]+)$');
       $httpBackend.expectDELETE(rx).respond();
 
 			// Run controller functionality

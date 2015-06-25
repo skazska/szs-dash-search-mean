@@ -9,7 +9,7 @@ angular.module('options').controller('OptionsController', ['$scope', '$statePara
 		$scope.create = function() {
 			// Create new Option object
 			var option = new Options ({
-        id: this.id,
+        id: this._id,
         title: this.title,
         description: this.description,
         logo: this.logo
@@ -17,10 +17,12 @@ angular.module('options').controller('OptionsController', ['$scope', '$statePara
 
 			// Redirect after save
 			option.$save(function(response) {
-				$location.path(Cfg('search_url','')+'options/' + response._id);
+				$location.path('options/' + response._id);
 
 				// Clear form fields
-				$scope.name = '';
+				$scope.title = '';
+        $scope.logo = '';
+        $scope.description = '';
 			}, function(errorResponse) {
 				$scope.error = errorResponse.data.message;
 			});
@@ -38,7 +40,7 @@ angular.module('options').controller('OptionsController', ['$scope', '$statePara
 				}
 			} else {
 				$scope.option.$remove(function() {
-					$location.path(Cfg('search_url', '')+'options');
+					$location.path('options');
 				});
 			}
 		};
@@ -48,7 +50,7 @@ angular.module('options').controller('OptionsController', ['$scope', '$statePara
 			var option = $scope.option;
 
 			option.$update(function() {
-				$location.path(Cfg('search_url', '')+'options/' + option._id);
+				$location.path('options/' + option._id);
 			}, function(errorResponse) {
 				$scope.error = errorResponse.data.message;
 			});
