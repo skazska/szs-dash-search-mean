@@ -9,7 +9,10 @@ angular.module('options').controller('OptionsController', ['$scope', '$statePara
 		$scope.create = function() {
 			// Create new Option object
 			var option = new Options ({
-				name: this.name
+        id: this.id,
+        title: this.title,
+        description: this.description,
+        logo: this.logo
 			});
 
 			// Redirect after save
