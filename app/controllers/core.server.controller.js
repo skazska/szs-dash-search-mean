@@ -9,3 +9,10 @@ exports.index = function(req, res) {
 		request: req
 	});
 };
+
+exports.admin = function(req, res) {
+  res.render('admin', {
+    user: req.user || null,
+    request: req
+  });
+};
