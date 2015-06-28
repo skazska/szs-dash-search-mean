@@ -3,7 +3,6 @@
 
 <head>
 	<title>{{title}}</title>
-
 	<!-- General META -->
 	<meta charset="utf-8">
 	<meta http-equiv="Content-type" content="text/html;charset=UTF-8">
@@ -41,11 +40,14 @@
 	<!--[if lt IE 9]>
 		<script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
 	<![endif]-->
+
+    {% block appHead %}{% endblock%}
+
 </head>
 
 <body class="ng-cloak">
-	<header data-ng-include="'/modules/core/views/header.client.view.html'" class="navbar navbar-fixed-top navbar-inverse"></header>
-	<section class="content">
+    {% block contentHead %}{% endblock %}
+    <section class="content">
 		<section class="container">
 			{% block content %}{% endblock %}
 		</section>
