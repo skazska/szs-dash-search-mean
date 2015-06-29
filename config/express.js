@@ -40,6 +40,19 @@ module.exports = function(db) {
 	app.locals.jsFiles = config.getJavaScriptAssets();
 	app.locals.cssFiles = config.getCSSAssets();
 
+  // Manage front-end app, cuts app name and add to params
+  app.use(function(req, res, next){
+    if (req.url.slice(0,6) === '/admin') {
+      req.app = 'admin';
+      req.url = req.url.slice(6);
+      if (req.url[0] != '/') req.url = '/'.concat(req.url);
+      console.log(req.url);
+    } else {
+      req.app = 'index';
+    }
+    next();
+  });
+
 	// Passing the request url to environment locals
 	app.use(function(req, res, next) {
 		res.locals.url = req.protocol + '://' + req.headers.host + req.url;
