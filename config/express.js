@@ -7,7 +7,6 @@ var fs = require('fs'),
 	http = require('http'),
 	https = require('https'),
 	express = require('express'),
-  _ = require('lodash'),
 	morgan = require('morgan'),
 	bodyParser = require('body-parser'),
 	session = require('express-session'),
@@ -40,9 +39,9 @@ module.exports = function(db) {
 	app.locals.keywords = config.app.keywords;
 	app.locals.facebookAppId = config.facebook.clientID;
 	app.locals.jsFiles = config.getJavaScriptAssets();
-  app.locals.admin.jsFiles = adminConfig.getJavaScriptAssets();
+  app.locals.adminJsFiles = adminConfig.getJavaScriptAssets();
 	app.locals.cssFiles = config.getCSSAssets();
-  app.locals.admin.cssFiles = adminConfig.getCSSAssets();
+  app.locals.adminCssFiles = adminConfig.getCSSAssets();
 
 	// Passing the request url to environment locals
 	app.use(function(req, res, next) {

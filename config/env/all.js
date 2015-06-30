@@ -35,6 +35,7 @@ module.exports = {
         js: [
         ]
       },
+      modulePrefix:'public/modules/',
       modules:[
         'options',
         'opt-items',
@@ -48,6 +49,8 @@ module.exports = {
 		js: [
 			'public/config.js',
 			'public/application.js',
+			'public/modules/core/*.js',
+			'public/modules/core/*[!tests]*/*.js'
 //			'public/modules/*/*.js',
 //			'public/modules/*/*[!tests]*/*.js'
 		],
