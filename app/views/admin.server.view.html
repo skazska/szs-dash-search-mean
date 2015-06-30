@@ -10,10 +10,12 @@
 
 {% block appJs %}
 {% for jsFile in jsFiles %}<script type="text/javascript" src="{{jsFile}}"></script>{% endfor %}
+{% for jsFile in admin.jsFiles %}<script type="text/javascript" src="{{jsFile}}"></script>{% endfor %}
 {% endblock %}
 
 {% block appCss %}
 {% for cssFile in cssFiles %}<link rel="stylesheet" href="{{cssFile}}">{% endfor %}
+{% for cssFile in admin.cssFiles %}<link rel="stylesheet" href="{{cssFile}}">{% endfor %}
 {% endblock %}
 
 {% block appHead %}

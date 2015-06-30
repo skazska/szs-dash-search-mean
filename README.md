@@ -11,6 +11,7 @@ Stack:
 ##Project layout
 ###Server side
 Server side related files have next layout:
+
     \->server.js #inits and runs server instance
     |->app #server side modules files reside there
     |  \->controllers #modules business logic functional to process requests and data & compose response
@@ -25,12 +26,16 @@ Server side related files have next layout:
     |  |->config.js #script loads environment configuration (process.env.NODE_ENV) and provides functions 
     |  |            #returning runtime file lists (js, css) for front-end
     |  |->express.js #express initialisation and configuration script
-    |  |->init.js #does something with environments (don't get it yet)
+    |  |->init.js #checks that env config exists for process.env.NODE_ENV and sets process.env.NODE_ENV = development if empty
     |  \->passport auth module initialization
     |->package.json, bower.json #sercver and front-end package managers configs
     |->karma.conf.js #front-end unit testing configuration
     |->gruntfile.js #project task manager configuration
-    |
+
+###Client side
+
+Client side related files layout    
+
     |->public #front-end files
     |  \->modules #modules front end files reside there 
     |     \->{module_name} #each module contains angular modules structure elements and assets
@@ -47,5 +52,23 @@ Server side related files have next layout:
     |->application.js  # bootstraps f-e
     \->config.js # registers modules
 
+##Launching Server
+
+  The `server.js` is a root script. It first run `/config/init.js` to determine and check environment 
+configurations, then loads corresponding environment configurations from `/config/env`, inits mongoose 
+connection to mongodb, init express `/config/express.js` and passport `/config/passport.js`, and start server.  
+
+  The `/config/express.js` initiates and configures:
+
+1. vendor middleware
+2. data models from `/app/models/**/*.js`
+3. routing for static assets to `/public/*`
+4. app modules routing from `/app/routes/**/*.js`
+5. HTTP errors
+
+  The `core` module provides route configuration `/arr/routes/core.server.routes.js` to initial front-end pages
+generators through `core.server.controller`:
+   a. `/` -> `/app/views/index.server.view` 
+   b. `/` -> `/app/views/admin.server.view` 
 
   

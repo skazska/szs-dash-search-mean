@@ -7,6 +7,7 @@ var fs = require('fs'),
 	http = require('http'),
 	https = require('https'),
 	express = require('express'),
+  _ = require('lodash'),
 	morgan = require('morgan'),
 	bodyParser = require('body-parser'),
 	session = require('express-session'),
@@ -20,6 +21,7 @@ var fs = require('fs'),
 	}),
 	flash = require('connect-flash'),
 	config = require('./config'),
+  adminConfig = require('./admin.server.config.js')(config),
 	consolidate = require('consolidate'),
 	path = require('path');
 
@@ -38,7 +40,9 @@ module.exports = function(db) {
 	app.locals.keywords = config.app.keywords;
 	app.locals.facebookAppId = config.facebook.clientID;
 	app.locals.jsFiles = config.getJavaScriptAssets();
+  app.locals.admin.jsFiles = adminConfig.getJavaScriptAssets();
 	app.locals.cssFiles = config.getCSSAssets();
+  app.locals.admin.cssFiles = adminConfig.getCSSAssets();
 
 	// Passing the request url to environment locals
 	app.use(function(req, res, next) {
