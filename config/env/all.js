@@ -39,8 +39,7 @@ module.exports = {
       modules:[
         'options',
         'opt-items',
-        'records',
-        'users'
+        'records'
       ]
     },
 		css: [
@@ -50,7 +49,9 @@ module.exports = {
 			'public/config.js',
 			'public/application.js',
 			'public/modules/core/*.js',
-			'public/modules/core/*[!tests]*/*.js'
+			'public/modules/core/*[!tests]*/*.js',
+      'public/modules/users/*.js',
+      'public/modules/users/*[!tests]*/*.js'
 //			'public/modules/*/*.js',
 //			'public/modules/*/*[!tests]*/*.js'
 		],
