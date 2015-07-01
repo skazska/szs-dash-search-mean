@@ -4,9 +4,9 @@
  * Module dependencies.
  */
 var passport = require('passport');
-var router = require("express").Router();
 
 module.exports = function(app) {
+  var router = require("express").Router();
   // User Routes
   var users = require('../../app/controllers/users.server.controller');
 
