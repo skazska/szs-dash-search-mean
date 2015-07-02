@@ -40,12 +40,22 @@ module.exports = function(app) {
   router.route('/auth/twitter/callback').get(users.oauthCallback('twitter'));
 
   // Setting the google oauth routes
-  router.route('/auth/google').get(passport.authenticate('google', {
-    scope: [
-      'https://www.googleapis.com/auth/userinfo.profile',
-      'https://www.googleapis.com/auth/userinfo.email'
-    ]
-  }));
+  router.route('/auth/google').get(function(req, res, next){
+    console.log('base:'+req.baseUrl);
+
+    //used version of passport uses  url.resolve( req.headers.host + req.url , callBackUrl )
+    //in case of using relative callbackUrl,  that leads somehow to situation
+    //when req.url is [/auth/google] and callbackUrl is [/auth/google/callback]
+    //then it becomes /auth/auth/google/callback, indeed it does not take baseUrl
+    //into account, so:
+//    req.url = req.baseUrl+'/';
+    passport.authenticate('google', {
+      scope: [
+        'https://www.googleapis.com/auth/userinfo.profile',
+        'https://www.googleapis.com/auth/userinfo.email'
+      ]
+    }) (req, res, next)
+  } );
   router.route('/auth/google/callback').get(users.oauthCallback('google'));
 
   // Setting the linkedin oauth routes
