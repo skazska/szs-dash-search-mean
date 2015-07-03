@@ -20,6 +20,7 @@ var fs = require('fs'),
 	}),
 	flash = require('connect-flash'),
 	config = require('./config'),
+  adminConfig = require('./admin.server.config.js')(config),
 	consolidate = require('consolidate'),
 	path = require('path');
 
@@ -38,7 +39,9 @@ module.exports = function(db) {
 	app.locals.keywords = config.app.keywords;
 	app.locals.facebookAppId = config.facebook.clientID;
 	app.locals.jsFiles = config.getJavaScriptAssets();
+  app.locals.adminJsFiles = adminConfig.getJavaScriptAssets();
 	app.locals.cssFiles = config.getCSSAssets();
+  app.locals.adminCssFiles = adminConfig.getCSSAssets();
 
 	// Passing the request url to environment locals
 	app.use(function(req, res, next) {
@@ -112,6 +115,7 @@ module.exports = function(db) {
 
 	// Setting the app router and static folder
 	app.use(express.static(path.resolve('./public')));
+  app.use('/admin', express.static(path.resolve('./public')));
 
 	// Globbing routing files
 	config.getGlobbedFiles('./app/routes/**/*.js').forEach(function(routePath) {

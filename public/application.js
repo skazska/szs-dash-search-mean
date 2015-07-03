@@ -8,8 +8,9 @@ angular.module(ApplicationConfiguration.applicationModuleName).config([
   '$locationProvider',
   'CfgProvider',
 	function($locationProvider, CfgProvider) {
+//    $locationProvider.html5Mode(true);
 		$locationProvider.hashPrefix('!');
-    CfgProvider.set('search_url', 'search-api/');
+    CfgProvider.set('search_url', '/search-api/');
 	}
 ]);
 

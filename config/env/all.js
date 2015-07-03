@@ -28,14 +28,32 @@ module.exports = {
 				'public/lib/angular-bootstrap/ui-bootstrap-tpls.js'
 			]
 		},
+    admin: {
+      lib: {
+        css: [
+        ],
+        js: [
+        ]
+      },
+      modulePrefix:'public/modules/',
+      modules:[
+        'options',
+        'opt-items',
+        'records'
+      ]
+    },
 		css: [
 			'public/modules/**/css/*.css'
 		],
 		js: [
 			'public/config.js',
 			'public/application.js',
-			'public/modules/*/*.js',
-			'public/modules/*/*[!tests]*/*.js'
+			'public/modules/core/*.js',
+			'public/modules/core/*[!tests]*/*.js',
+      'public/modules/users/*.js',
+      'public/modules/users/*[!tests]*/*.js'
+//			'public/modules/*/*.js',
+//			'public/modules/*/*[!tests]*/*.js'
 		],
 		tests: [
 			'public/lib/angular-mocks/angular-mocks.js',

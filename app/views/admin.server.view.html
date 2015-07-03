@@ -5,17 +5,19 @@
 {% endblock %}
 
 {% block contentHead %}
-    <header data-ng-include="'/modules/core/views/header.client.view.html'" class="navbar navbar-fixed-top navbar-inverse"></header>
+    <header data-ng-include="'/admin/modules/core/views/header.client.view.html'" class="navbar navbar-fixed-top navbar-inverse"></header>
 {% endblock %}
 
 {% block appJs %}
 {% for jsFile in jsFiles %}<script type="text/javascript" src="{{jsFile}}"></script>{% endfor %}
+{% for jsFile in adminJsFiles %}<script type="text/javascript" src="{{jsFile}}"></script>{% endfor %}
 {% endblock %}
 
 {% block appCss %}
 {% for cssFile in cssFiles %}<link rel="stylesheet" href="{{cssFile}}">{% endfor %}
+{% for cssFile in adminCssFiles %}<link rel="stylesheet" href="{{cssFile}}">{% endfor %}
 {% endblock %}
 
 {% block appHead %}
-<base href="/">
+<base href="/admin/">
 {% endblock %}
