@@ -91,7 +91,7 @@ exports.oauthCallback = function(strategy) {
 					return res.redirect('#!/signin');
 				}
 
-				return res.redirect(redirectURL || '/');
+				return res.redirect(redirectURL || req.baseUrl+'/');
 			});
 		})(req, res, next);
 	};
@@ -163,7 +163,7 @@ exports.saveOAuthUserProfile = function(req, providerUserProfile, done) {
 
 			// And save the user
 			user.save(function(err) {
-				return done(err, user, '/#!/settings/accounts');
+				return done(err, user, '#!/settings/accounts');
 			});
 		} else {
 			return done(new Error('User is already connected using this provider'), user);
