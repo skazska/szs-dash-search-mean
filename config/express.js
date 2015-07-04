@@ -20,7 +20,7 @@ var fs = require('fs'),
 	}),
 	flash = require('connect-flash'),
 	config = require('./config'),
-  adminConfig = require('./admin.server.config.js')(config),
+//  adminConfig = require('./admin.server.config.js')(config),
 	consolidate = require('consolidate'),
 	path = require('path');
 
@@ -39,9 +39,11 @@ module.exports = function(db) {
 	app.locals.keywords = config.app.keywords;
 	app.locals.facebookAppId = config.facebook.clientID;
 	app.locals.jsFiles = config.getJavaScriptAssets();
-  app.locals.adminJsFiles = adminConfig.getJavaScriptAssets();
+//  app.locals.adminJsFiles = adminConfig.getJavaScriptAssets();
+  app.locals.adminJsFiles = config.admin.getJavaScriptAssets();
 	app.locals.cssFiles = config.getCSSAssets();
-  app.locals.adminCssFiles = adminConfig.getCSSAssets();
+//  app.locals.adminCssFiles = adminConfig.getCSSAssets();
+  app.locals.adminCssFiles = config.admin.getCSSAssets();
 
 	// Passing the request url to environment locals
 	app.use(function(req, res, next) {
@@ -119,7 +121,7 @@ module.exports = function(db) {
 
 	// Globbing routing files
 	config.getGlobbedFiles('./app/routes/**/*.js').forEach(function(routePath) {
-		require(path.resolve(routePath))(app);
+		require(path.resolve(routePath))(app, config);
 	});
 
 	// Assume 'not found' in the error msgs is a 404. this is somewhat silly, but valid, you can do whatever you like, set properties, use instanceof etc.

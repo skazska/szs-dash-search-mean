@@ -1,15 +1,15 @@
 'use strict';
 
 module.exports = function(app) {
-	var users = require('../../app/controllers/users.server.controller');
-	var options = require('../../app/controllers/options.server.controller');
+	var users = require('../controllers/users.server.controller.js');
+	var options = require('../controllers/options.server.controller.js');
 
 	// Options Routes
-	app.route('/search-api/options')
+	app.route('/options')
 		.get(options.list)
 		.post(users.requiresLogin, options.create);
 
-	app.route('/search-api/options/:optionId')
+	app.route('/options/:optionId')
 		.get(options.read)
 		.put(users.requiresLogin, options.hasAuthorization, options.update)
 		.delete(users.requiresLogin, options.hasAuthorization, options.delete);
