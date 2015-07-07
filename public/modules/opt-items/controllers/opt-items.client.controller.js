@@ -4,12 +4,15 @@
 angular.module('opt-items').controller('OptItemsController', ['$scope', '$stateParams', '$location', 'Authentication', 'OptItems',
 	function($scope, $stateParams, $location, Authentication, OptItems) {
 		$scope.authentication = Authentication;
-
+    $scope.optionId = $stateParams.optionId;
 		// Create new Opt item
 		$scope.create = function() {
 			// Create new Opt item object
 			var optItem = new OptItems ({
-				name: this.name
+        option: this.optionId,
+        title: this.title,
+        description: this.description,
+        logo: this.logo
 			});
 
 			// Redirect after save

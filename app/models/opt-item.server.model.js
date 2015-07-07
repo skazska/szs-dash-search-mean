@@ -21,6 +21,7 @@ function idValid (val) {
  * represents values of options
  * It consists of:
  * id - a technical option name - required, unique, /[A-Za-z0-9\-_]/
+ * option - an option
  * title - a representative name  - optional, but filled by name if not set
  * description - a descriptive text    - optional
  * logo - a URL to logo image of group - optional

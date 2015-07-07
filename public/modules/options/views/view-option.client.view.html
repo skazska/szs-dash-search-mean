@@ -34,7 +34,9 @@
             </a>
         </div>
         <div class="alert alert-warning text-center" data-ng-hide="!optItems.$resolved || optItems.length">
-            No Opt items yet, why don't you <a href="#!/opt-items/create">create one</a>?
+            No Opt items yet, why don't you <a
+                ui-sref="createOptItem({optionId:option._id})"
+                >create one</a>? <!--href="#!/opt-items/create"-->
         </div>
     </section>
 </section>

@@ -10,7 +10,7 @@ angular.module('opt-items').config(['$stateProvider',
 			templateUrl: 'modules/opt-items/views/list-opt-items.client.view.html'
 		}).
 		state('createOptItem', {
-			url: '/opt-items/create',
+			url: '/opt-items/create/:optionId',
 			templateUrl: 'modules/opt-items/views/create-opt-item.client.view.html'
 		}).
 		state('viewOptItem', {
