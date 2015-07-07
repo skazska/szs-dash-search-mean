@@ -67,5 +67,5 @@ angular.module('options').controller('OptionsController', ['$scope', '$statePara
 				optionId: $stateParams.optionId
 			});
 		};
-	}
+  }
 ]);

@@ -52,8 +52,10 @@ angular.module('opt-items').controller('OptItemsController', ['$scope', '$stateP
 		};
 
 		// Find a list of Opt items
-		$scope.find = function() {
-			$scope.optItems = OptItems.query();
+		$scope.find = function(option) {
+			var params;
+      if (option) { params = {option: option} }
+      $scope.optItems = OptItems.query(params);
 		};
 
 		// Find existing Opt item

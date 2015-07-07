@@ -14,6 +14,9 @@ module.exports = function(app) {
 		.put(users.requiresLogin, optItems.hasAuthorization, optItems.update)
 		.delete(users.requiresLogin, optItems.hasAuthorization, optItems.delete);
 
-	// Finish by binding the Opt item middleware
+  app.route('/options/:optionId/items')
+    .get(optItems.list)
+
+  // Finish by binding the Opt item middleware
 	app.param('optItemId', optItems.optItemByID);
 };
