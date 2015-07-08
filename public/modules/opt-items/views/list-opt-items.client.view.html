@@ -1,6 +1,6 @@
 <section data-ng-controller="OptItemsController" data-ng-init="find()">
     <div class="page-header">
-        <h1>Opt items</h1>
+        <h2>Option items</h2>
     </div>
     <div class="list-group">
         <a data-ng-repeat="optItem in optItems" data-ng-href="#!/opt-items/{{optItem._id}}" class="list-group-item">
@@ -14,6 +14,6 @@
         </a>
     </div>
     <div class="alert alert-warning text-center" data-ng-hide="!optItems.$resolved || optItems.length">
-    	No Opt items yet, why don't you <a href="#!/opt-items/create">create one</a>?
+    	No Opt items yet, why don't you <a ui-sref="option.items.create" >create one</a>? <!--href="#!/opt-items/create"-->
     </div>
 </section>

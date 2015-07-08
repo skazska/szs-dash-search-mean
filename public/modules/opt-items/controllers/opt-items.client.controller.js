@@ -4,12 +4,15 @@
 angular.module('opt-items').controller('OptItemsController', ['$scope', '$stateParams', '$location', 'Authentication', 'OptItems',
 	function($scope, $stateParams, $location, Authentication, OptItems) {
 		$scope.authentication = Authentication;
-    $scope.optionId = $stateParams.optionId;
+    $scope.init = function () {
+      $scope.option = $scope.$parent.option._id;
+      $scope.optionTitle = $scope.$parent.option.title;
+    };
 		// Create new Opt item
 		$scope.create = function() {
 			// Create new Opt item object
 			var optItem = new OptItems ({
-        option: this.optionId,
+        option: this.option,
         title: this.title,
         description: this.description,
         logo: this.logo
@@ -55,9 +58,9 @@ angular.module('opt-items').controller('OptItemsController', ['$scope', '$stateP
 		};
 
 		// Find a list of Opt items
-		$scope.find = function(option) {
+		$scope.find = function() {
 			var params;
-      if (option) { params = {option: option} }
+      if ($scope.$parent.option) { params = {option: $scope.$parent.option._id} }
       $scope.optItems = OptItems.query(params);
 		};
 

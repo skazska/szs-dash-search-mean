@@ -13,7 +13,7 @@ angular.module('options').config(['$stateProvider',
 			url: '/options/create',
 			templateUrl: 'modules/options/views/create-option.client.view.html'
 		}).
-		state('viewOption', {
+		state('option', {
 			url: '/options/:optionId',
 			templateUrl: 'modules/options/views/view-option.client.view.html'
 		}).

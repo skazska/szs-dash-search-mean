@@ -1,26 +1,38 @@
-<section data-ng-controller="OptItemsController">
-    <div class="page-header">
-        <h1>New Opt item</h1>
-    </div>
-    <div class="col-md-12">
-        <form class="form-horizontal" data-ng-submit="create()" novalidate>
-            <fieldset>
-                <div class="form-group">
-                    <label class="control-label" for="name">Name</label>
-                    <div class="controls">
-                        <input type="text" data-ng-model="optionId"
-                               id="optionId"
-                               class="form-control" placeholder="Option"
-                               required>
-                    </div>
+<div class="col-md-12" data-ng-init="init()">
+    <form class="form-horizontal" data-ng-submit="create()" novalidate>
+        <fieldset>
+            <div class="form-group">
+                <label class="control-label" for="option">Option</label>
+                <div class="controls">
+                    <input type="text" data-ng-model="option"
+                           id="option"
+                           class="form-control" placeholder="Option"
+                           required>
                 </div>
-                <div class="form-group">
-                    <input type="submit" class="btn btn-default">
+                <div class="alert alert-info" role="alert" data-ng-bind="optionTitle"></div>
+                <label class="control-label" for="title">Title</label>
+                <div class="controls">
+                    <input type="text" data-ng-model="title" id="title" class="form-control" placeholder="Title">
                 </div>
-				<div data-ng-show="error" class="text-danger">
-					<strong data-ng-bind="error"></strong>
-				</div>
-            </fieldset>
-        </form>
-    </div>
-</section>
+
+                <label class="control-label" for="logo">Logo</label>
+                <div class="controls">
+                    <input type="url" data-ng-model="logo" id="logo" class="form-control" placeholder="url to image">
+                </div>
+
+                <label class="control-label" for="description">Description</label>
+                <div class="controls">
+                    <textarea data-ng-model="description" id="description" class="form-control" placeholder="descriptive text"></textarea>
+                </div>
+
+            </div>
+
+            <div class="form-group">
+                <input type="submit" class="btn btn-default">
+            </div>
+            <div data-ng-show="error" class="text-danger">
+                <strong data-ng-bind="error"></strong>
+            </div>
+        </fieldset>
+    </form>
+</div>

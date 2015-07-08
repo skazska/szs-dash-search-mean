@@ -1,0 +1,7 @@
+<section data-ng-controller="OptItemsController" >
+    <section ui-view>
+    </section>
+    <div class="alert alert-warning text-center" data-ng-hide="!optItems.$resolved || optItems.length">
+        No Opt items yet, why don't you <a ui-sref="option.item.create" >create one</a>? <!--href="#!/opt-items/create"-->
+    </div>
+</section>

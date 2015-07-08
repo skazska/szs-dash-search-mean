@@ -17,26 +17,10 @@
 			by
 			<span data-ng-bind="option.user.displayName"></span>
 		</em>
+        <hr>
 	</small>
-    <section data-ng-controller="OptItemsController" data-ng-init="find(option._id)">
-        <div class="page-header">
-            <h2>Items</h2>
-        </div>
-        <div class="list-group">
-            <a data-ng-repeat="optItem in optItems" data-ng-href="#!/opt-items/{{optItem._id}}" class="list-group-item">
-                <small class="list-group-item-text">
-                    Posted on
-                    <span data-ng-bind="optItem.created | date:'medium'"></span>
-                    by
-                    <span data-ng-bind="optItem.user.displayName"></span>
-                </small>
-                <h4 class="list-group-item-heading" data-ng-bind="optItem.name"></h4>
-            </a>
-        </div>
-        <div class="alert alert-warning text-center" data-ng-hide="!optItems.$resolved || optItems.length">
-            No Opt items yet, why don't you <a
-                ui-sref="createOptItem({optionId:option._id})"
-                >create one</a>? <!--href="#!/opt-items/create"-->
-        </div>
-    </section>
+    <div class="alert alert-warning text-center" >
+        <a ui-sref="option.item.list">Items</a>
+    </div>
+    <section ui-view></section>
 </section>
