@@ -1,15 +1,8 @@
 <div class="col-md-12" data-ng-init="init()">
+    <h3>Create Item</h3>
     <form class="form-horizontal" data-ng-submit="create()" novalidate>
         <fieldset>
             <div class="form-group">
-                <label class="control-label" for="option">Option</label>
-                <div class="controls">
-                    <input type="text" data-ng-model="option"
-                           id="option"
-                           class="form-control" placeholder="Option"
-                           required>
-                </div>
-                <div class="alert alert-info" role="alert" data-ng-bind="optionTitle"></div>
                 <label class="control-label" for="title">Title</label>
                 <div class="controls">
                     <input type="text" data-ng-model="title" id="title" class="form-control" placeholder="Title">

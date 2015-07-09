@@ -1,18 +1,34 @@
 'use strict';
 
+function getterSetter(cont1, cont2, field, val){
+  if (!cont1) {
+    if (val) { return cont2[field] = val; }
+    else { return cont2[field]; }
+  } else {
+    if (val) { return cont1[field] = val; }
+    else { return cont1[field]; }
+  }
+
+}
+
 // Opt items controller
-angular.module('opt-items').controller('OptItemsController', ['$scope', '$stateParams', '$location', 'Authentication', 'OptItems',
-	function($scope, $stateParams, $location, Authentication, OptItems) {
+angular.module('opt-items').controller('OptItemsController', ['$scope', '$state', '$stateParams', '$location', 'Authentication', 'OptItems',
+	function($scope, $state, $stateParams, $location, Authentication, OptItems) {
 		$scope.authentication = Authentication;
-    $scope.init = function () {
-      $scope.option = $scope.$parent.option._id;
-      $scope.optionTitle = $scope.$parent.option.title;
+    $scope.init = function(opt){ if (opt) {$scope._option = opt;} };
+    $scope.option = {
+      _id:function(val) {
+        return getterSetter($scope._option, $scope.$parent.option, '_id', val);
+      },
+      title:function(val) {
+        return getterSetter($scope._option, $scope.$parent.option, 'title', val);
+      }
     };
 		// Create new Opt item
 		$scope.create = function() {
 			// Create new Opt item object
 			var optItem = new OptItems ({
-        option: this.option,
+        option: this.option._id(),
         title: this.title,
         description: this.description,
         logo: this.logo
@@ -20,10 +36,12 @@ angular.module('opt-items').controller('OptItemsController', ['$scope', '$stateP
 
 			// Redirect after save
 			optItem.$save(function(response) {
-				$location.path('opt-items/' + response._id);
-
+//				$location.path('/opt-items/' + response._id);
+        $state.go('option.item.list');
 				// Clear form fields
-				$scope.name = '';
+				$scope.title = '';
+        $scope.description = '';
+        $scope.logo = '';
 			}, function(errorResponse) {
 				$scope.error = errorResponse.data.message;
 			});
