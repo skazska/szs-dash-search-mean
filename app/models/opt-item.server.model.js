@@ -20,24 +20,28 @@ function idValid (val) {
  * Opt item Schema
  * represents values of options
  * It consists of:
- * id - a technical option name - required, unique, /[A-Za-z0-9\-_]/
+ * id - a technical item id - required, unique, /[A-Za-z0-9\-_]/
  * option - an option
  * title - a representative name  - optional, but filled by name if not set
  * description - a descriptive text    - optional
  * logo - a URL to logo image of group - optional
  */
 var OptItemSchema = new Schema({
-  _id: {
-    type: String,
-    default: '',
-    required: 'Please fill Option id',
-    trim: true,
-    validate: [idValid, 'Only /[A-Za-z0-9\-_]+/ accepted for {PATH}']
+//  _id: {
+//    type: String,
+//    default: '',
+//    required: 'Please fill Item id',
+//    trim: true,
+//    validate: [idValid, 'Only /[A-Za-z0-9\-_]+/ accepted for {PATH}']
 //    index: true
-  },
+//  },
   option: {
     type: String,
-    ref: 'Option'
+    required: 'Please assign to option',
+    validate: [idValid, 'Only /[A-Za-z0-9\-_]+/ accepted for {PATH}'],
+    trim: true,
+    ref: 'Option',
+    index: true
   },
   title: {
     type: String,
