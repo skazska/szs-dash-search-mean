@@ -1,12 +1,21 @@
 <div class="list-group" data-ng-init="find()">
     <h3>Item List</h3>
-    <a data-ng-repeat="optItem in optItems" data-ng-href="#!/opt-items/{{optItem._id}}" class="list-group-item">
+    <div data-ng-repeat="optItem in optItems" class="list-group-item">
         <small class="list-group-item-text">
-            Posted on
-            <span data-ng-bind="optItem.created | date:'medium'"></span>
-            by
-            <span data-ng-bind="optItem.user.displayName"></span>
+            <em class="text-muted">
+                Posted on
+                <span data-ng-bind="optItem.created | date:'medium'"></span>
+                by
+                <span data-ng-bind="optItem.user.displayName"></span>
+            </em>
         </small>
-        <h4 class="list-group-item-heading" data-ng-bind="optItem.name"></h4>
-    </a>
+        <div class="pull-right" data-ng-show="((authentication.user) && (authentication.user._id == optItem.user._id))">
+            <a class="btn btn-primary" data-ng-click="remove();">
+                <i class="glyphicon glyphicon-trash"></i>
+            </a>
+        </div>
+        <a ui-sref="option.item.edit({optItemId:optItem._id})" >
+            <h4 class="list-group-item-heading" data-ng-bind="optItem.title"></h4>
+        </a>
+    </div>
 </div>

@@ -36,7 +36,6 @@ angular.module('opt-items').controller('OptItemsController', ['$scope', '$state'
 
 			// Redirect after save
 			optItem.$save({optionId: $scope.option._id()}, function(response) {
-//				$location.path('/opt-items/' + response._id);
         $state.go('option.item.list');
 				// Clear form fields
 				$scope.title = '';
@@ -59,7 +58,7 @@ angular.module('opt-items').controller('OptItemsController', ['$scope', '$state'
 				}
 			} else {
 				$scope.optItem.$remove(function() {
-					$location.path('opt-items');
+          $state.go('option.item.list');
 				});
 			}
 		};
@@ -69,7 +68,7 @@ angular.module('opt-items').controller('OptItemsController', ['$scope', '$state'
 			var optItem = $scope.optItem;
 
 			optItem.$update(function() {
-				$location.path('opt-items/' + optItem._id);
+        $state.go('option.item.list');
 			}, function(errorResponse) {
 				$scope.error = errorResponse.data.message;
 			});
@@ -85,8 +84,9 @@ angular.module('opt-items').controller('OptItemsController', ['$scope', '$state'
 
 		// Find existing Opt item
 		$scope.findOne = function() {
-			$scope.optItem = OptItems.get({ 
-				optItemId: $stateParams.optItemId
+			$scope.optItem = OptItems.get({
+        optionId: $stateParams.optionId,
+        optItemId: $stateParams.optItemId
 			});
 		};
 	}

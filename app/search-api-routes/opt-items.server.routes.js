@@ -14,6 +14,11 @@ module.exports = function(app) {
 		.put(users.requiresLogin, optItems.hasAuthorization, optItems.update)
 		.delete(users.requiresLogin, optItems.hasAuthorization, optItems.delete);
 
+  app.route('/options/:optionId/items/:optItemId')
+    .get(optItems.read)
+    .put(users.requiresLogin, optItems.hasAuthorization, optItems.update)
+    .delete(users.requiresLogin, optItems.hasAuthorization, optItems.delete);
+
   app.route('/options/:optionId/items')
     .get(optItems.list)
     .post(users.requiresLogin, optItems.create);

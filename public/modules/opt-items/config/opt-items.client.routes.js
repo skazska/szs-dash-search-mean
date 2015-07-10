@@ -20,5 +20,9 @@ angular.module('opt-items').config(['$stateProvider',
       url: '/items/:optItemId/edit',
       templateUrl: 'modules/opt-items/views/edit-opt-item.client.view.html'
     });
+    state('option.item.delete', {
+      url: '/items/:optItemId/delete',
+      templateUrl: 'modules/opt-items/views/del-opt-item.client.view.html'
+    });
 	}
 ]);
