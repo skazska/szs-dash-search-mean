@@ -15,6 +15,7 @@ function getterSetter(cont1, cont2, field, val){
 angular.module('opt-items').controller('OptItemsController', ['$scope', '$state', '$stateParams', '$location', 'Authentication', 'OptItems',
 	function($scope, $state, $stateParams, $location, Authentication, OptItems) {
 		$scope.authentication = Authentication;
+    $scope.state = $state;
     $scope.init = function(opt){ if (opt) {$scope._option = opt;} };
     $scope.option = {
       _id:function(val) {

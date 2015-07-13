@@ -1,0 +1,12 @@
+<div class="list-group" data-ng-init="find()">
+    <h3>Item List</h3>
+    <a data-ng-repeat="option in options" ui-sref="option.view({optionId: option._id})" class="list-group-item">
+        <small class="list-group-item-text">
+            Posted on
+            <span data-ng-bind="option.created | date:'medium'"></span>
+            by
+            <span data-ng-bind="option.user.displayName"></span>
+        </small>
+        <h4 class="list-group-item-heading" data-ng-bind="option._id + ' - ' + option.title"></h4>
+    </a>
+</div>

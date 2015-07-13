@@ -1,9 +1,9 @@
-<section data-ng-controller="OptionsController" data-ng-init="findOne()">
+<section data-ng-init="findOne()">
 	<div class="pull-right" data-ng-show="((authentication.user) && (authentication.user._id == option.user._id))">
-		<a class="btn btn-primary" href="#!/options/{{option._id}}/edit">
+		<a class="btn btn-primary" ui-sref="option.edit({optionId: option._id})">
 			<i class="glyphicon glyphicon-edit"></i>
 		</a>
-		<a class="btn btn-primary" data-ng-click="remove();">
+		<a class="btn btn-primary" ui-sref="option.delete({optionId: option._id})"> <!--data-ng-click="remove();"-->
 			<i class="glyphicon glyphicon-trash"></i>
 		</a>
 	</div>
@@ -20,7 +20,7 @@
         <h1 data-ng-bind="option._id + ' - ' + option.title"></h1>
     </div>
     <div class="alert alert-warning text-center" >
-        <a ui-sref="option.item.list">Items</a>
+        <a ui-sref="option.item.list({optionId: option._id})">Items</a>
     </div>
     <section ui-view></section>
 </section>
