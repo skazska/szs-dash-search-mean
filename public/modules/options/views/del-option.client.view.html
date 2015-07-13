@@ -2,9 +2,9 @@
     <small>
         <em class="text-muted">
             Posted on
-            <span data-ng-bind="optItem.created | date:'mediumDate'"></span>
+            <span data-ng-bind="option.created | date:'mediumDate'"></span>
             by
-            <span data-ng-bind="optItem.user.displayName"></span>
+            <span data-ng-bind="option.user.displayName"></span>
         </em>
         <hr>
     </small>
@@ -13,7 +13,7 @@
         <strong>You are willing to delete this Option. It is potentially data loose action. We need you to confirm It.</strong>
         <hr width="50%">
         <button type="button" class="btn btn-danger" data-ng-click="remove()">Delete</button>
-        <button type="button" class="btn btn-primary" data-ng-click="state.go('option.view')">Cancel</button>
+        <button type="button" class="btn btn-primary" data-ng-click="state.go('option.view', {optionId:option._id})">Cancel</button>
     </div>
 
     <h4 data-ng-bind="optItem.title"></h4>
