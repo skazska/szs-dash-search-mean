@@ -1,9 +1,9 @@
 <section data-ng-init="findOne()">
     <div class="pull-right" data-ng-show="((authentication.user) && (authentication.user._id == option.user._id))">
-        <a class="btn btn-primary" data-ng-click="state.go('option.item.edit')">
+        <a class="btn btn-primary" data-ng-click="state.go('option.view.item.edit')">
             <i class="glyphicon glyphicon-edit"></i>
         </a>
-        <a class="btn btn-primary" data-ng-click="state.go('option.item.delete')">
+        <a class="btn btn-primary" data-ng-click="state.go('option.view.item.delete')">
             <i class="glyphicon glyphicon-trash"></i>
         </a>
     </div>

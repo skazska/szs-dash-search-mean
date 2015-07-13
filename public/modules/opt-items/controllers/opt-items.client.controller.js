@@ -37,7 +37,7 @@ angular.module('opt-items').controller('OptItemsController', ['$scope', '$state'
 
 			// Redirect after save
 			optItem.$save({optionId: $scope.option._id()}, function(response) {
-        $state.go('option.item.list');
+        $state.go('option.view.item.list');
 				// Clear form fields
 				$scope.title = '';
         $scope.description = '';
@@ -59,7 +59,7 @@ angular.module('opt-items').controller('OptItemsController', ['$scope', '$state'
 				}
 			} else {
 				$scope.optItem.$remove(function() {
-          $state.go('option.item.list');
+          $state.go('option.view.item.list');
 				});
 			}
 		};
@@ -69,7 +69,7 @@ angular.module('opt-items').controller('OptItemsController', ['$scope', '$state'
 			var optItem = $scope.optItem;
 
 			optItem.$update(function() {
-        $state.go('option.item.list');
+        $state.go('option.view.item.list');
 			}, function(errorResponse) {
 				$scope.error = errorResponse.data.message;
 			});

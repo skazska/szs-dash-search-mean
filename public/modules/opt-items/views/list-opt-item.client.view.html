@@ -10,11 +10,11 @@
             </em>
         </small>
         <div class="pull-right" data-ng-show="((authentication.user) && (authentication.user._id == optItem.user._id))">
-            <a class="btn btn-primary" data-ng-click="state.go('option.item.delete', {optItemId:optItem._id})">
+            <a class="btn btn-primary" data-ng-click="state.go('option.view.item.delete', {optItemId:optItem._id})">
                 <i class="glyphicon glyphicon-trash"></i>
             </a>
         </div>
-        <a ui-sref="option.item.edit({optItemId:optItem._id})" >
+        <a ui-sref="option.view.item.edit({optItemId:optItem._id})" >
             <h4 class="list-group-item-heading" data-ng-bind="optItem.title"></h4>
         </a>
     </div>
