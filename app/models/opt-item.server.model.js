@@ -20,21 +20,13 @@ function idValid (val) {
  * Opt item Schema
  * represents values of options
  * It consists of:
- * id - a technical item id - required, unique, /[A-Za-z0-9\-_]/
- * option - an option
+ * option - an option technical id - required, /[A-Za-z0-9\-_]/
+ * id - and external id - required /[A-Za-z0-9\-_]/
  * title - a representative name  - optional, but filled by name if not set
  * description - a descriptive text    - optional
  * logo - a URL to logo image of group - optional
  */
 var OptItemSchema = new Schema({
-//  _id: {
-//    type: String,
-//    default: '',
-//    required: 'Please fill Item id',
-//    trim: true,
-//    validate: [idValid, 'Only /[A-Za-z0-9\-_]+/ accepted for {PATH}']
-//    index: true
-//  },
   option: {
     type: String,
     required: 'Please assign to option',
@@ -42,6 +34,12 @@ var OptItemSchema = new Schema({
     trim: true,
     ref: 'Option',
     index: true
+  },
+  id: {
+    type: String,
+    required: 'Please assign an id',
+    validate: [idValid, 'Only /[A-Za-z0-9\-_]+/ accepted for {PATH}'],
+    trim: true
   },
   title: {
     type: String,
@@ -68,24 +66,15 @@ var OptItemSchema = new Schema({
 	}
 });
 
+/**
+ * middleware pre-save
+ * - fills title with name if empty or 'Same as name'
+ */
 OptItemSchema.pre('save', function (next) {
   if (!this.title || this.title == 'Same as id') {
-    this.title = this._id;
+    this.title = this.id;
   }
   next();
-});
-
-/**
- * setter id -> _id
- */
-OptItemSchema.virtual('id').set(function(id){
-  this._id = id;
-});
-/**
- * getter id -> _id
- */
-OptItemSchema.virtual('id').get(function(){
-  return this._id;
 });
 
 mongoose.model('OptItem', OptItemSchema);
