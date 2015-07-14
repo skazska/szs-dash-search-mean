@@ -10,10 +10,6 @@ angular.module('options').config(['$stateProvider',
         url: '/options',
         templateUrl: 'modules/options/views/option.client.view.html'
       })
-      .state('option.view', {
-        url: '/:optionId/view',
-        templateUrl: 'modules/options/views/view-option.client.view.html'
-      })
       .state('option.list', {
         url: '/list',
         templateUrl: 'modules/options/views/list-option.client.view.html'
@@ -22,12 +18,21 @@ angular.module('options').config(['$stateProvider',
         url: '/create',
         templateUrl: 'modules/options/views/create-option.client.view.html'
       })
-      .state('option.edit', {
-        url: '/:optionId/edit',
+      .state('option.one', {
+        abstract: true,
+        url: '/:optionId',
+        templateUrl: 'modules/options/views/one-option.client.view.html'
+      })
+      .state('option.one.view', {
+        url: '/view',
+        templateUrl: 'modules/options/views/view-option.client.view.html'
+      })
+      .state('option.one.edit', {
+        url: '/edit',
         templateUrl: 'modules/options/views/edit-option.client.view.html'
       })
-      .state('option.delete', {
-        url: '/:optionId/delete',
+      .state('option.one.delete', {
+        url: '/delete',
         templateUrl: 'modules/options/views/del-option.client.view.html'
       })
     ;

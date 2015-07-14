@@ -6,7 +6,8 @@
 var mongoose = require('mongoose'),
 	errorHandler = require('./errors.server.controller'),
 	Option = mongoose.model('Option'),
-	_ = require('lodash');
+	_ = require('lodash'),
+  async = require('async');
 
 /**
  * Create a Option
@@ -57,16 +58,42 @@ exports.update = function(req, res) {
  */
 exports.delete = function(req, res) {
 	var option = req.option ;
-
-	option.remove(function(err) {
-		if (err) {
-			return res.status(400).send({
-				message: errorHandler.getErrorMessage(err)
-			});
-		} else {
-			res.jsonp(option);
-		}
-	});
+  var OptItem = mongoose.model('OptItem');
+console.log('del option'+option);
+  OptItem.find({option: option._id}).exec(
+    function (err, items){
+      if (err) {
+        return res.status(400).send({
+          message: errorHandler.getErrorMessage(err)
+        });
+      } else {
+        async.each(
+          items,
+          function iterator(item, callback) {
+            console.log('del item' + item);
+            item.remove(callback);
+          },
+          function done(err) {
+            if (err) {
+              return res.status(400).send({
+                message: errorHandler.getErrorMessage(err)
+              });
+            } else {
+              option.remove(function (err) {
+                if (err) {
+                  return res.status(400).send({
+                    message: errorHandler.getErrorMessage(err)
+                  });
+                } else {
+                  res.jsonp(option);
+                }
+              });
+            }
+          }
+        );
+      }
+    }
+  );
 };
 
 /**

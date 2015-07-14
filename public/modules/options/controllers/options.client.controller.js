@@ -17,7 +17,7 @@ angular.module('options').controller('OptionsController', ['$scope', '$state', '
 
 			// Redirect after save
 			option.$save(function(response) {
-        $state.go('option.view',{optionId: response._id});
+        $state.go('option.one.view',{optionId: response._id});
 //        $location.path('options/' + response._id);
 
 				// Clear form fields
@@ -51,7 +51,7 @@ angular.module('options').controller('OptionsController', ['$scope', '$state', '
 			var option = $scope.option;
 
 			option.$update(function() {
-        $state.go('option.view', {optionId: option._id});
+        $state.go('option.one.view', {optionId: option._id});
 			}, function(errorResponse) {
 				$scope.error = errorResponse.data.message;
 			});

@@ -1,16 +1,5 @@
 'use strict';
 
-function getterSetter(cont1, cont2, field, val){
-  if (!cont1) {
-    if (val) { return cont2[field] = val; }
-    else { return cont2[field]; }
-  } else {
-    if (val) { return cont1[field] = val; }
-    else { return cont1[field]; }
-  }
-
-}
-
 // Opt items controller
 angular.module('opt-items').controller('OptItemsController', ['$scope', '$state', '$stateParams', '$location', 'Authentication', 'OptItems',
 	function($scope, $state, $stateParams, $location, Authentication, OptItems) {
@@ -19,10 +8,13 @@ angular.module('opt-items').controller('OptItemsController', ['$scope', '$state'
     $scope.init = function(opt){ if (opt) {$scope._option = opt;} };
     $scope.option = {
       _id:function(val) {
-        return $stateParams.optionId || getterSetter($scope._option, $scope.$parent.option, '_id', val);
+        return $stateParams.optionId || $scope.$parent.option._id;
       },
       title:function(val) {
-        return getterSetter($scope._option, $scope.$parent.option, 'title', val);
+        return $scope.$parent.option.title;
+      },
+      user:function(val) {
+        return $scope.$parent.option.user;
       }
     };
 		// Create new Opt item
@@ -37,7 +29,7 @@ angular.module('opt-items').controller('OptItemsController', ['$scope', '$state'
 
 			// Redirect after save
 			optItem.$save({optionId: $scope.option._id()}, function(response) {
-        $state.go('option.view.item.list');
+        $state.go('option.one.item.list');
 				// Clear form fields
 				$scope.title = '';
         $scope.description = '';
@@ -59,7 +51,7 @@ angular.module('opt-items').controller('OptItemsController', ['$scope', '$state'
 				}
 			} else {
 				$scope.optItem.$remove(function() {
-          $state.go('option.view.item.list');
+          $state.go('option.one.item.list');
 				});
 			}
 		};
@@ -69,7 +61,7 @@ angular.module('opt-items').controller('OptItemsController', ['$scope', '$state'
 			var optItem = $scope.optItem;
 
 			optItem.$update(function() {
-        $state.go('option.view.item.list');
+        $state.go('option.one.item.list');
 			}, function(errorResponse) {
 				$scope.error = errorResponse.data.message;
 			});
