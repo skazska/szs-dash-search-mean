@@ -5,14 +5,16 @@ var should = require('should'),
 	app = require('../../server'),
 	mongoose = require('mongoose'),
 	User = mongoose.model('User'),
-	OptItem = mongoose.model('OptItem'),
+	Option = mongoose.model('Option'),
+  OptItem = mongoose.model('OptItem'),
 	agent = request.agent(app);
 
 /**
  * Globals
  */
-var credentials, user, optItem;
-
+var credentials, user, optItem, option;
+var urlPrefix = '/search-api/options/opt/items';
+var optionId = 'opt';
 /**
  * Opt item routes tests
  */
@@ -35,13 +37,23 @@ describe('Opt item CRUD tests', function() {
 			provider: 'local'
 		});
 
+    option = new Option({
+      _id: "opt",
+      user: user
+    });
+
+    optItem = {
+      id: 'item',
+      title: 'title',
+      description: 'description',
+      logo: 'logo'
+    };
+
 		// Save a user to the test db and create new Opt item
 		user.save(function() {
-			optItem = {
-				name: 'Opt item Name'
-			};
-
-			done();
+      option.save(function() {
+        done();
+      });
 		});
 	});
 
@@ -57,7 +69,7 @@ describe('Opt item CRUD tests', function() {
 				var userId = user.id;
 
 				// Save a new Opt item
-				agent.post('/opt-items')
+				agent.post(urlPrefix+'')
 					.send(optItem)
 					.expect(200)
 					.end(function(optItemSaveErr, optItemSaveRes) {
@@ -65,7 +77,7 @@ describe('Opt item CRUD tests', function() {
 						if (optItemSaveErr) done(optItemSaveErr);
 
 						// Get a list of Opt items
-						agent.get('/opt-items')
+						agent.get(urlPrefix+'')
 							.end(function(optItemsGetErr, optItemsGetRes) {
 								// Handle Opt item save error
 								if (optItemsGetErr) done(optItemsGetErr);
@@ -75,7 +87,7 @@ describe('Opt item CRUD tests', function() {
 
 								// Set assertions
 								(optItems[0].user._id).should.equal(userId);
-								(optItems[0].name).should.match('Opt item Name');
+                optItems[0].should.containEql({id:'item', title:'title', logo:'logo', description:'description'});
 
 								// Call the assertion callback
 								done();
@@ -85,7 +97,7 @@ describe('Opt item CRUD tests', function() {
 	});
 
 	it('should not be able to save Opt item instance if not logged in', function(done) {
-		agent.post('/opt-items')
+		agent.post(urlPrefix+'')
 			.send(optItem)
 			.expect(401)
 			.end(function(optItemSaveErr, optItemSaveRes) {
@@ -94,9 +106,9 @@ describe('Opt item CRUD tests', function() {
 			});
 	});
 
-	it('should not be able to save Opt item instance if no name is provided', function(done) {
+	it('should not be able to save Opt item instance if no id is provided', function(done) {
 		// Invalidate name field
-		optItem.name = '';
+		optItem.id = '';
 
 		agent.post('/auth/signin')
 			.send(credentials)
@@ -109,18 +121,41 @@ describe('Opt item CRUD tests', function() {
 				var userId = user.id;
 
 				// Save a new Opt item
-				agent.post('/opt-items')
+				agent.post(urlPrefix+'')
 					.send(optItem)
 					.expect(400)
 					.end(function(optItemSaveErr, optItemSaveRes) {
 						// Set message assertion
-						(optItemSaveRes.body.message).should.match('Please fill Opt item name');
+						(optItemSaveRes.body.message).should.match('Please assign an id');
 						
 						// Handle Opt item save error
 						done(optItemSaveErr);
 					});
 			});
 	});
+
+  it('should not be able to save Opt item instance if no option is provided', function(done) {
+    agent.post('/auth/signin')
+      .send(credentials)
+      .expect(200)
+      .end(function(signinErr, signinRes) {
+        // Handle signin error
+        if (signinErr) done(signinErr);
+
+        // Get the userId
+        var userId = user.id;
+
+        // Save a new Opt item
+        agent.post(urlPrefix.replace('opt/', ''))
+          .send(optItem)
+          .expect(404)
+          .end(function(optItemSaveErr, optItemSaveRes) {
+            // Handle Opt item save error
+            done(optItemSaveErr);
+          });
+      });
+  });
+
 
 	it('should be able to update Opt item instance if signed in', function(done) {
 		agent.post('/auth/signin')
@@ -134,7 +169,7 @@ describe('Opt item CRUD tests', function() {
 				var userId = user.id;
 
 				// Save a new Opt item
-				agent.post('/opt-items')
+				agent.post(urlPrefix+'')
 					.send(optItem)
 					.expect(200)
 					.end(function(optItemSaveErr, optItemSaveRes) {
@@ -142,10 +177,10 @@ describe('Opt item CRUD tests', function() {
 						if (optItemSaveErr) done(optItemSaveErr);
 
 						// Update Opt item name
-						optItem.name = 'WHY YOU GOTTA BE SO MEAN?';
+						optItem.title = 'WHY YOU GOTTA BE SO MEAN?';
 
 						// Update existing Opt item
-						agent.put('/opt-items/' + optItemSaveRes.body._id)
+						agent.put(urlPrefix+'/' + optItemSaveRes.body._id)
 							.send(optItem)
 							.expect(200)
 							.end(function(optItemUpdateErr, optItemUpdateRes) {
@@ -154,7 +189,7 @@ describe('Opt item CRUD tests', function() {
 
 								// Set assertions
 								(optItemUpdateRes.body._id).should.equal(optItemSaveRes.body._id);
-								(optItemUpdateRes.body.name).should.match('WHY YOU GOTTA BE SO MEAN?');
+								(optItemUpdateRes.body.title).should.match('WHY YOU GOTTA BE SO MEAN?');
 
 								// Call the assertion callback
 								done();
@@ -166,17 +201,19 @@ describe('Opt item CRUD tests', function() {
 	it('should be able to get a list of Opt items if not signed in', function(done) {
 		// Create new Opt item model instance
 		var optItemObj = new OptItem(optItem);
+    optItemObj.option = option;
 
 		// Save the Opt item
-		optItemObj.save(function() {
+		optItemObj.save(function(err) {
+			if (err) {done(err);}
 			// Request Opt items
-			request(app).get('/opt-items')
+			request(app).get(urlPrefix+'')
 				.end(function(req, res) {
 					// Set assertion
 					res.body.should.be.an.Array.with.lengthOf(1);
 
 					// Call the assertion callback
-					done();
+          done();
 				});
 
 		});
@@ -186,13 +223,14 @@ describe('Opt item CRUD tests', function() {
 	it('should be able to get a single Opt item if not signed in', function(done) {
 		// Create new Opt item model instance
 		var optItemObj = new OptItem(optItem);
+    optItemObj.option = option;
 
 		// Save the Opt item
 		optItemObj.save(function() {
-			request(app).get('/opt-items/' + optItemObj._id)
+			request(app).get(urlPrefix+'/' + optItemObj._id)
 				.end(function(req, res) {
 					// Set assertion
-					res.body.should.be.an.Object.with.property('name', optItem.name);
+					res.body.should.be.an.Object.with.property('title', optItem.title);
 
 					// Call the assertion callback
 					done();
@@ -212,7 +250,7 @@ describe('Opt item CRUD tests', function() {
 				var userId = user.id;
 
 				// Save a new Opt item
-				agent.post('/opt-items')
+				agent.post(urlPrefix+'')
 					.send(optItem)
 					.expect(200)
 					.end(function(optItemSaveErr, optItemSaveRes) {
@@ -220,7 +258,7 @@ describe('Opt item CRUD tests', function() {
 						if (optItemSaveErr) done(optItemSaveErr);
 
 						// Delete existing Opt item
-						agent.delete('/opt-items/' + optItemSaveRes.body._id)
+						agent.delete(urlPrefix+'/' + optItemSaveRes.body._id)
 							.send(optItem)
 							.expect(200)
 							.end(function(optItemDeleteErr, optItemDeleteRes) {
@@ -247,7 +285,7 @@ describe('Opt item CRUD tests', function() {
 		// Save the Opt item
 		optItemObj.save(function() {
 			// Try deleting Opt item
-			request(app).delete('/opt-items/' + optItemObj._id)
+			request(app).delete(urlPrefix+'/' + optItemObj._id)
 			.expect(401)
 			.end(function(optItemDeleteErr, optItemDeleteRes) {
 				// Set message assertion
@@ -261,7 +299,8 @@ describe('Opt item CRUD tests', function() {
 	});
 
 	afterEach(function(done) {
-		User.remove().exec();
+		Option.remove().exec();
+    User.remove().exec();
 		OptItem.remove().exec();
 		done();
 	});

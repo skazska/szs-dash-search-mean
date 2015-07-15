@@ -59,7 +59,6 @@ exports.update = function(req, res) {
 exports.delete = function(req, res) {
 	var option = req.option ;
   var OptItem = mongoose.model('OptItem');
-console.log('del option'+option);
   OptItem.find({option: option._id}).exec(
     function (err, items){
       if (err) {
@@ -70,7 +69,6 @@ console.log('del option'+option);
         async.each(
           items,
           function iterator(item, callback) {
-            console.log('del item' + item);
             item.remove(callback);
           },
           function done(err) {

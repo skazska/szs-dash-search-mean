@@ -13,7 +13,6 @@ var mongoose = require('mongoose'),
  */
 exports.create = function(req, res) {
 	var optItem = new OptItem(req.body);
-	console.log(req.params);
   optItem.option = req.params.optionId;
   optItem.user = req.user;
 
