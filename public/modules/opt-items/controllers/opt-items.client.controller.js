@@ -8,7 +8,7 @@ angular.module('opt-items').controller('OptItemsController', ['$scope', '$state'
     $scope.init = function(opt){ if (opt) {$scope._option = opt;} };
     $scope.option = {
       _id:function(val) {
-        return $stateParams.optionId || $scope.$parent.option._id;
+        return $stateParams.optionId || (angular.isObject($scope.$parent.option)?$scope.$parent.option._id:null);
       },
       title:function(val) {
         return $scope.$parent.option.title;

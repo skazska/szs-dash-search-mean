@@ -13,9 +13,11 @@ module.exports = function(config) {
 
 		// List of files / patterns to load in the browser
 		files: applicationConfiguration.assets.lib.js.concat(
-      applicationConfiguration.assets.js,
-      applicationConfiguration.assets.js,
-      applicationConfiguration.assets.tests
+      applicationConfiguration.getJavaScriptAssets('', true),
+      applicationConfiguration.admin.getJavaScriptAssets('', true)
+//      applicationConfiguration.assets.js,
+//      applicationConfiguration.assets.js,
+//      applicationConfiguration.assets.tests
     ),
 
 		// Test results reporter to use

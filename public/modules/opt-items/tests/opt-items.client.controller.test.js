@@ -41,7 +41,7 @@
 			// Set a new global scope
 			scope = $rootScope.$new();
       Cfg = _Cfg_;
-      url_prefix = Cfg('search_url','')+'/options/opt/items';
+      url_prefix = Cfg('search_url','')+'options/opt/items';
 			// Point global variables to injected services
 			$stateParams = _$stateParams_;
 			$httpBackend = _$httpBackend_;
@@ -51,6 +51,9 @@
 			OptItemsController = $controller('OptItemsController', {
 				$scope: scope
 			});
+
+
+
 		}));
 
 		it('$scope.find() should create an array with at least one Opt item object fetched from XHR', inject(function(OptItems) {
@@ -64,16 +67,27 @@
 
 			// Create a sample Opt items array that includes the new Opt item
 			var sampleOptItems = [sampleOptItem];
-
 			// Set GET response
-			$httpBackend.expectGET(url_prefix).respond(sampleOptItems);
+			$httpBackend.whenGET(url_prefix).respond(sampleOptItems);
 
+      // Using option in parent scope
+      scope.$parent.option = {_id:'opt'};
 			// Run controller functionality
 			scope.find();
 			$httpBackend.flush();
-
 			// Test scope value
 			expect(scope.optItems).toEqualData(sampleOptItems);
+      // Using $stateParams
+//      $httpBackend.resetExpectations();
+      delete(scope.$parent.option);
+      delete(scope.optItems);
+      $stateParams.optionId = 'opt';
+//      $httpBackend.expectGET(url_prefix).respond(sampleOptItems);
+      // Run controller functionality
+      scope.find();
+      $httpBackend.flush();
+      // Test scope value
+      expect(scope.optItems).toEqualData(sampleOptItems);
 		}));
 
 		it('$scope.findOne() should create an array with one Opt item object fetched from XHR using a optItemId URL parameter', inject(function(OptItems) {
