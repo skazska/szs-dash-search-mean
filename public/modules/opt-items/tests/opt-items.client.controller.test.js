@@ -5,10 +5,12 @@
 	describe('Opt items Controller Tests', function() {
 		// Initialize global variables
 		var OptItemsController,
-		scope,
-		$httpBackend,
-		$stateParams,
-		$location;
+      scope,
+      $httpBackend,
+      $stateParams,
+      $location,
+      Cfg,
+      url_prefix;
 
 		// The $resource service augments the response object with methods for updating and deleting the resource.
 		// If we were to use the standard toEqual matcher, our tests would fail because the test values would not match
@@ -35,10 +37,11 @@
 		// The injector ignores leading and trailing underscores here (i.e. _$httpBackend_).
 		// This allows us to inject a service but then attach it to a variable
 		// with the same name as the service.
-		beforeEach(inject(function($controller, $rootScope, _$location_, _$stateParams_, _$httpBackend_) {
+		beforeEach(inject(function($controller, $rootScope, _$location_, _$stateParams_, _$httpBackend_, _Cfg_) {
 			// Set a new global scope
 			scope = $rootScope.$new();
-
+      Cfg = _Cfg_;
+      url_prefix = Cfg('search_url','')+'/options/opt/items';
 			// Point global variables to injected services
 			$stateParams = _$stateParams_;
 			$httpBackend = _$httpBackend_;
@@ -53,14 +56,17 @@
 		it('$scope.find() should create an array with at least one Opt item object fetched from XHR', inject(function(OptItems) {
 			// Create sample Opt item using the Opt items service
 			var sampleOptItem = new OptItems({
-				name: 'New Opt item'
+				id: 'Item',
+        title: 'New Opt item',
+        logo: '',
+        description: 'New Opt item'
 			});
 
 			// Create a sample Opt items array that includes the new Opt item
 			var sampleOptItems = [sampleOptItem];
 
 			// Set GET response
-			$httpBackend.expectGET('opt-items').respond(sampleOptItems);
+			$httpBackend.expectGET(url_prefix).respond(sampleOptItems);
 
 			// Run controller functionality
 			scope.find();

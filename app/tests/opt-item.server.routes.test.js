@@ -278,6 +278,7 @@ describe('Opt item CRUD tests', function() {
 	it('should not be able to delete Opt item instance if not signed in', function(done) {
 		// Set Opt item user 
 		optItem.user = user;
+    optItem.option = option;
 
 		// Create new Opt item model instance
 		var optItemObj = new OptItem(optItem);
@@ -285,7 +286,7 @@ describe('Opt item CRUD tests', function() {
 		// Save the Opt item
 		optItemObj.save(function() {
 			// Try deleting Opt item
-			request(app).delete(urlPrefix+'/' + optItemObj._id)
+			request(app).delete(urlPrefix + '/' + optItemObj._id)
 			.expect(401)
 			.end(function(optItemDeleteErr, optItemDeleteRes) {
 				// Set message assertion

@@ -71,14 +71,14 @@ angular.module('opt-items').controller('OptItemsController', ['$scope', '$state'
 		$scope.find = function() {
 //			var params;
 //      if ($scope.$parent.option) { params = {optionId: $scope.$parent.option._id} }
-      $scope.optItems = OptItems.query({optionId: $stateParams.optionId});
+      $scope.optItems = OptItems.query({optionId: $scope.option._id()});// $stateParams.optionId});
 
 		};
 
 		// Find existing Opt item
 		$scope.findOne = function() {
 			$scope.optItem = OptItems.get({
-        optionId: $stateParams.optionId,
+        optionId: $scope.option._id(), //$stateParams.optionId,
         optItemId: $stateParams.optItemId
 			});
 		};
