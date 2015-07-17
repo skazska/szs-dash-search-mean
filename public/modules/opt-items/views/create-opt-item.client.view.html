@@ -3,6 +3,11 @@
     <form class="form-horizontal" data-ng-submit="create()" novalidate>
         <fieldset>
             <div class="form-group">
+                <label class="control-label" for="id">Id</label>
+                <div class="controls">
+                    <input type="text" data-ng-model="optItem.id" id="id" class="form-control" placeholder="Id">
+                </div>
+
                 <label class="control-label" for="title">Title</label>
                 <div class="controls">
                     <input type="text" data-ng-model="title" id="title" class="form-control" placeholder="Title">

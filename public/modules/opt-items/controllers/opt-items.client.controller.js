@@ -21,7 +21,7 @@ angular.module('opt-items').controller('OptItemsController', ['$scope', '$state'
 		$scope.create = function() {
 			// Create new Opt item object
 			var optItem = new OptItems ({
-//        option: this.option._id(),
+        id: this.id,
         title: this.title,
         description: this.description,
         logo: this.logo
@@ -29,8 +29,9 @@ angular.module('opt-items').controller('OptItemsController', ['$scope', '$state'
 
 			// Redirect after save
 			optItem.$save({optionId: $scope.option._id()}, function(response) {
-        $state.go('option.one.item.list');
+        $state.go('option.one.item.list');//, {optionId: $scope.option._id()});
 				// Clear form fields
+        $scope.id = '';
 				$scope.title = '';
         $scope.description = '';
         $scope.logo = '';
