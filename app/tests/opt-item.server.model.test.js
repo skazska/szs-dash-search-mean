@@ -24,7 +24,8 @@ describe('Opt item Model Unit Tests:', function() {
 			displayName: 'Full Name',
 			email: 'test@test.com',
 			username: 'username',
-			password: 'password'
+			password: 'password',
+      provider: 'local'
 		});
 
 		user.save(function() { 
