@@ -26,10 +26,9 @@ angular.module('opt-items').controller('OptItemsController', ['$scope', '$state'
         description: this.description,
         logo: this.logo
 			});
-
 			// Redirect after save
 			optItem.$save({optionId: $scope.option._id()}, function(response) {
-        $state.go('option.one.item.list');//, {optionId: $scope.option._id()});
+        $state.go('option.one.item.list', {optionId: $scope.option._id()});
 				// Clear form fields
         $scope.id = '';
 				$scope.title = '';
@@ -43,7 +42,7 @@ angular.module('opt-items').controller('OptItemsController', ['$scope', '$state'
 		// Remove existing Opt item
 		$scope.remove = function(optItem) {
 			if ( optItem ) { 
-				optItem.$remove();
+				optItem.$remove({optionId: $scope.option._id()});
 
 				for (var i in $scope.optItems) {
 					if ($scope.optItems [i] === optItem) {
@@ -51,8 +50,8 @@ angular.module('opt-items').controller('OptItemsController', ['$scope', '$state'
 					}
 				}
 			} else {
-				$scope.optItem.$remove(function() {
-          $state.go('option.one.item.list');
+				$scope.optItem.$remove({optionId: $scope.option._id()}, function() {
+          $state.go('option.one.item.list', {optionId: $scope.option._id()});
 				});
 			}
 		};
@@ -61,8 +60,8 @@ angular.module('opt-items').controller('OptItemsController', ['$scope', '$state'
 		$scope.update = function() {
 			var optItem = $scope.optItem;
 
-			optItem.$update(function() {
-        $state.go('option.one.item.list');
+			optItem.$update({optionId: $scope.option._id()}, function() {
+        $state.go('option.one.item.list', {optionId: $scope.option._id()});
 			}, function(errorResponse) {
 				$scope.error = errorResponse.data.message;
 			});

@@ -128,70 +128,80 @@
 
 		}));
 
-		it('$scope.create() with valid form data should send a POST request with the form input values and then locate to new object URL', inject(function(OptItems) {
-			// Create a sample Opt item object
-			var sampleOptItemPostData = new OptItems({
-        id: 'Item',
-        title: 'New Opt item',
-        logo: '',
-        description: 'New Opt item'
-			});
+		it(
+			'$scope.create() with valid form data should send a POST request with the form input values and then locate to new object URL',
+			inject(function(OptItems, $state) {
+				// Create a sample Opt item object
+				var sampleOptItemPostData = new OptItems({
+					id: 'Item',
+					title: 'New Opt item',
+					logo: '',
+					description: 'New Opt item'
+				});
 
-			// Create a sample Opt item response
-			var sampleOptItemResponse = new OptItems({
-				_id: '525cf20451979dea2c000001',
-        opt: 'opt',
-        id: 'Item',
-        title: 'New Opt item',
-        logo: '',
-        description: 'New Opt item'
-			});
+				// Create a sample Opt item response
+				var sampleOptItemResponse = new OptItems({
+					_id: '525cf20451979dea2c000001',
+					opt: 'opt',
+					id: 'Item',
+					title: 'New Opt item',
+					logo: '',
+					description: 'New Opt item'
+				});
 
-			// Fixture mock form input values
-      scope.id = 'Item';
-      scope.title = 'New Opt item';
-      scope.logo = '';
-      scope.description = 'New Opt item';
+				// Fixture mock form input values
+				scope.id = 'Item';
+				scope.title = 'New Opt item';
+				scope.logo = '';
+				scope.description = 'New Opt item';
 
-      $stateParams.optionId = 'opt';
+//        $stateParams.optionId = 'opt';
 
-      // Set POST response
-			$httpBackend.expectPOST(url_prefix, sampleOptItemPostData).respond(sampleOptItemResponse);
-
-      // Run controller functionality
-			scope.create();
-			$httpBackend.flush();
-
-
-			// Test form inputs are reset
-			expect(scope.id).toEqual('');
-      expect(scope.title).toEqual('');
-      expect(scope.logo).toEqual('');
-      expect(scope.description).toEqual('');
-
-			// Test URL redirection after the Opt item was created
-			expect($location.path()).toBe(url_prefix);// + '/' + sampleOptItemResponse._id);
-		}));
+        // Using option in parent scope,  somehow seems like $httpBackend
+        // refresh $stateParams after each request (because outside testing
+        // params are kept after posting through $resource)
+        scope.$parent.option = {_id:'opt'};
+        // Set POST response
+				$httpBackend.expectPOST(url_prefix, sampleOptItemPostData).respond(sampleOptItemResponse);
+				// Run controller functionality
+				scope.create();
+				$httpBackend.flush();
+				// Test form inputs are reset
+				expect(scope.id).toEqual('');
+				expect(scope.title).toEqual('');
+				expect(scope.logo).toEqual('');
+				expect(scope.description).toEqual('');
+				// Test URL redirection after the Opt item was created
+				expect($location.path()).toBe('/options/opt/items/list');// + '/' +
+				// sampleOptItemResponse._id);
+			})
+		);
 
 		it('$scope.update() should update a valid Opt item', inject(function(OptItems) {
 			// Define a sample Opt item put data
 			var sampleOptItemPutData = new OptItems({
 				_id: '525cf20451979dea2c000001',
-				name: 'New Opt item'
+        id: 'Item',
+        title: 'New Opt item',
+        logo: '',
+        description: 'New Opt item'
 			});
 
 			// Mock Opt item in scope
 			scope.optItem = sampleOptItemPutData;
-
-			// Set PUT response
-			$httpBackend.expectPUT(/opt-items\/([0-9a-fA-F]{24})$/).respond();
+      // Using option in parent scope,  somehow seems like $httpBackend
+      // refresh $stateParams after each request (because outside testing
+      // params are kept after posting through $resource)
+      scope.$parent.option = {_id:'opt'};
+      // Set PUT response
+      $httpBackend.expectPUT(url_prefix+'/'+sampleOptItemPutData._id, sampleOptItemPutData).respond();
 
 			// Run controller functionality
 			scope.update();
 			$httpBackend.flush();
 
 			// Test URL location to new object
-			expect($location.path()).toBe('/opt-items/' + sampleOptItemPutData._id);
+			expect($location.path()).toBe('/options/opt/items/list');
 		}));
 
 		it('$scope.remove() should send a DELETE request with a valid optItemId and remove the Opt item from the scope', inject(function(OptItems) {
@@ -204,7 +214,7 @@
 			scope.optItems = [sampleOptItem];
 
 			// Set expected DELETE response
-			$httpBackend.expectDELETE(/opt-items\/([0-9a-fA-F]{24})$/).respond(204);
+			$httpBackend.expectDELETE(url_prefix+'/'+sampleOptItem._id).respond(204);
 
 			// Run controller functionality
 			scope.remove(sampleOptItem);
