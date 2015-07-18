@@ -28,20 +28,6 @@ module.exports = {
 				'public/lib/angular-bootstrap/ui-bootstrap-tpls.js'
 			]
 		},
-    admin: {
-      lib: {
-        css: [
-        ],
-        js: [
-        ]
-      },
-      modulePrefix:'public/modules/',
-      modules:[
-        'options',
-        'opt-items',
-        'records'
-      ]
-    },
 		css: [
 			'public/modules/**/css/*.css'
 		],
@@ -58,6 +44,20 @@ module.exports = {
 		tests: [
 			'public/lib/angular-mocks/angular-mocks.js',
 			'public/modules/*/tests/*.js'
-		]
+		],
+    admin: {
+      lib: {
+        css: [
+        ],
+        js: [
+        ]
+      },
+      modulePrefix:'public/modules/',
+      modules:[
+        'options',
+        'opt-items',
+        'records'
+      ]
+    }
 	}
 };

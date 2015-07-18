@@ -92,7 +92,6 @@ describe('Option CRUD tests', function() {
 
 								// Set assertions
 								(options[0].user._id).should.equal(userId);
-//								(options[0].name).should.match('Option Name');
                 options[0].should.containEql({_id:'opt', title:'title', logo:'logo', description:'description'});
 
 								// Call the assertion callback

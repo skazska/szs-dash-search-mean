@@ -1,0 +1,26 @@
+<section data-ng-init="findOne()">
+    <small data-ng-show="option">
+        <em class="text-muted">
+            Posted on
+            <span data-ng-bind="option.created | date:'mediumDate'"></span>
+            by
+            <span data-ng-bind="option.user.displayName"></span>
+        </em>
+        <hr>
+    </small>
+    <div class="pull-right" data-ng-show="((authentication.user) && (authentication.user._id == option.user._id))">
+        <a class="btn btn-primary" ui-sref="option.one.item.list({optionId: option._id})">
+            <i class="glyphicon glyphicon-th-list"></i>
+        </a>
+        <a class="btn btn-primary" ui-sref="option.one.edit({optionId: option._id})">
+            <i class="glyphicon glyphicon-edit"></i>
+        </a>
+        <a class="btn btn-primary" ui-sref="option.one.delete({optionId: option._id})"> <!--data-ng-click="remove();"-->
+            <i class="glyphicon glyphicon-trash"></i>
+        </a>
+    </div>
+    <div class="page-header" >
+        <h1 data-ng-show="option" data-ng-bind="option.title + '(' + option._id + ')'"></h1>
+    </div>
+    <section ui-view></section>
+</section>

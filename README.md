@@ -16,7 +16,9 @@ Server side related files have next layout:
     |->app #server side modules files reside there
     |  \->controllers #modules business logic functional to process requests and data & compose response
     |  |->models #modules data models on mongoose
-    |  |->routes #modules express routing configurations bind requests with controllers
+    |  |->routes #modules express common routing configurations bind requests with controllers
+    |  |->admin-routes #modules express admin-frontend routing configurations bind requests with controllers
+    |  |->search-api-routes #modules express api specific routing configurations bind requests with controllers
     |  |->tests #modules server side unit test scripts (mocha/should)
     |  \->views #html templates of initial html of front-ends, forms or error pages 
     |->config #server side configurations reside there
@@ -25,6 +27,8 @@ Server side related files have next layout:
     |  |->strategies #passportJS authentication strategies here
     |  |->config.js #script loads environment configuration (process.env.NODE_ENV) and provides functions 
     |  |            #returning runtime file lists (js, css) for front-end
+    |  |->admin.server.config.js #script included by config.js and provides functions 
+    |  |            #returning runtime file lists (js, css) specific for admin front-end
     |  |->express.js #express initialisation and configuration script
     |  |->init.js #checks that env config exists for process.env.NODE_ENV and sets process.env.NODE_ENV = development if empty
     |  \->passport auth module initialization

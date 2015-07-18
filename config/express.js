@@ -38,12 +38,12 @@ module.exports = function(db) {
 	app.locals.description = config.app.description;
 	app.locals.keywords = config.app.keywords;
 	app.locals.facebookAppId = config.facebook.clientID;
-	app.locals.jsFiles = config.getJavaScriptAssets();
+	app.locals.jsFiles = config.getJavaScriptAssets('public/');
 //  app.locals.adminJsFiles = adminConfig.getJavaScriptAssets();
-  app.locals.adminJsFiles = config.admin.getJavaScriptAssets();
-	app.locals.cssFiles = config.getCSSAssets();
+  app.locals.adminJsFiles = config.admin.getJavaScriptAssets('public/');
+	app.locals.cssFiles = config.getCSSAssets('public/');
 //  app.locals.adminCssFiles = adminConfig.getCSSAssets();
-  app.locals.adminCssFiles = config.admin.getCSSAssets();
+  app.locals.adminCssFiles = config.admin.getCSSAssets('public/');
 
 	// Passing the request url to environment locals
 	app.use(function(req, res, next) {

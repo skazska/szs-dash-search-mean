@@ -31,6 +31,7 @@
 			});
 		});
 
+		beforeEach(module('templates'));
 		// Then we can start by loading the main application module
 		beforeEach(module(ApplicationConfiguration.applicationModuleName));
 
@@ -133,13 +134,12 @@
 			$httpBackend.flush();
 
 			// Test form inputs are reset
-//			expect(scope._id).toEqual('');
       expect(scope.title).toEqual('');
       expect(scope.description).toEqual('');
       expect(scope.logo).toEqual('');
 
 			// Test URL redirection after the Option was created
-			expect($location.path()).toBe('/options/' + sampleOptionResponse._id);
+			expect($location.path()).toBe('/options/' + sampleOptionResponse._id+'/view');
 		}));
 
 		it('$scope.update() should update a valid Option', inject(function(Options) {
@@ -163,7 +163,7 @@
 			$httpBackend.flush();
 
 			// Test URL location to new object
-			expect($location.path()).toBe('/options/' + sampleOptionPutData._id);
+			expect($location.path()).toBe('/options/' + sampleOptionPutData._id+'/view');
 		}));
 
 		it('$scope.remove() should send a DELETE request with a valid optionId and remove the Option from the scope', inject(function(Options) {

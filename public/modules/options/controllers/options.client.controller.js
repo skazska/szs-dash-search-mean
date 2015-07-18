@@ -1,10 +1,10 @@
 'use strict';
 
 // Options controller
-angular.module('options').controller('OptionsController', ['$scope', '$stateParams', '$location', 'Authentication', 'Options', 'Cfg',
-	function($scope, $stateParams, $location, Authentication, Options, Cfg) {
+angular.module('options').controller('OptionsController', ['$scope', '$state', '$stateParams', '$location', 'Authentication', 'Options', 'Cfg',
+	function($scope, $state, $stateParams, $location, Authentication, Options, Cfg) {
 		$scope.authentication = Authentication;
-
+    $scope.state = $state;
 		// Create new Option
 		$scope.create = function() {
 			// Create new Option object
@@ -17,7 +17,8 @@ angular.module('options').controller('OptionsController', ['$scope', '$statePara
 
 			// Redirect after save
 			option.$save(function(response) {
-				$location.path('options/' + response._id);
+        $state.go('option.one.view',{optionId: response._id});
+//        $location.path('options/' + response._id);
 
 				// Clear form fields
 				$scope.title = '';
@@ -40,7 +41,7 @@ angular.module('options').controller('OptionsController', ['$scope', '$statePara
 				}
 			} else {
 				$scope.option.$remove(function() {
-					$location.path('options');
+          $state.go('option.list');
 				});
 			}
 		};
@@ -50,7 +51,7 @@ angular.module('options').controller('OptionsController', ['$scope', '$statePara
 			var option = $scope.option;
 
 			option.$update(function() {
-				$location.path('options/' + option._id);
+        $state.go('option.one.view', {optionId: option._id});
 			}, function(errorResponse) {
 				$scope.error = errorResponse.data.message;
 			});
@@ -67,5 +68,5 @@ angular.module('options').controller('OptionsController', ['$scope', '$statePara
 				optionId: $stateParams.optionId
 			});
 		};
-	}
+  }
 ]);

@@ -7,7 +7,12 @@ angular.module('options').factory('Options', ['$resource', 'Cfg',
 		}, {
 			update: {
 				method: 'PUT'
-			}
+			},
+      getItems: {
+        method: 'GET',
+        url: Cfg('search_url', '')+'options/:optionId/items',
+        isArray: true
+      }
 		});
 	}
 ]);

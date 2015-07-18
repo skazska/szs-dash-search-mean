@@ -13,7 +13,8 @@ var mongoose = require('mongoose'),
  */
 exports.create = function(req, res) {
 	var optItem = new OptItem(req.body);
-	optItem.user = req.user;
+  optItem.option = req.params.optionId;
+  optItem.user = req.user;
 
 	optItem.save(function(err) {
 		if (err) {
@@ -73,7 +74,11 @@ exports.delete = function(req, res) {
  * List of Opt items
  */
 exports.list = function(req, res) { 
-	OptItem.find().sort('-created').populate('user', 'displayName').exec(function(err, optItems) {
+  var cond;
+  if (req.params.optionId) {
+    cond = {option: req.params.optionId};
+  }
+	OptItem.find(cond).sort('-created').populate('user', 'displayName').exec(function(err, optItems) {
 		if (err) {
 			return res.status(400).send({
 				message: errorHandler.getErrorMessage(err)

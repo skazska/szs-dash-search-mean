@@ -4,7 +4,8 @@
  * Module dependencies.
  */
 var mongoose = require('mongoose'),
-	Schema = mongoose.Schema;
+	  Schema = mongoose.Schema,
+    async = require('async');
 
 /**
  * validator idValid
