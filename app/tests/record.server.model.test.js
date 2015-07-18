@@ -8,13 +8,15 @@ var should = require('should'),
   async = require('async'),
   errorHandler = require('../controllers/errors.server.controller'),
   User = mongoose.model('User'),
+  Option = mongoose.model('Option'),
+  OptItem = mongoose.model('OptItem'),
   Record = mongoose.model('Record');
 
 
 /**
  * Globals
  */
-var user, record;
+var user, option, optItem, record;
 
 /**
  * Record Schema
@@ -43,71 +45,81 @@ describe('Record Model Unit Tests:', function() {
 			displayName: 'Full Name',
 			email: 'test@test.com',
 			username: 'username',
-			password: 'password'
+			password: 'password',
+      provider: 'local'
 		});
+    option = new Option({
+      _id: 'opt',
+      user: user
+    });
+    optItem = new OptItem({
+      id: 'Item',
+      option:option,
+      user:user
+    });
 
-		user.save(function() { 
-			record = new Record({
-				user: user
-			});
-
-			done();
-		});
+    record = new Record({
+      user: user
+    });
+    async.eachSeries(
+      [user, option, optItem],
+      function(model, cb){
+        model.save(function(err, data) {
+          should.not.exist(err);
+          cb();
+        });
+      },
+      done
+    );
 	});
 
 	describe('Method Save', function() {
-    it('should start with no records', function(done){
-      Record.find(function(err, itms) {
+    it('should start with no records', function (done) {
+      Record.find(function (err, itms) {
         should.not.exist(err);
         itms.should.have.length(0);
         done();
       });
     });
     it('should be able to show an error when try to save with no items or' +
-      ' values members', function(done) {
-      var records = [new Record({}), new Record({items:[]}), new Record({values:[]})];
+      ' values members', function (done) {
+      var records = [new Record({}), new Record({items: []}), new Record({values: []})];
       async.each(
         records,
-        function(rec){
-          rec.save(function(err) {
+        function (rec, cb) {
+          rec.save(function (err) {
             should.exist(err);
-            should(errorHandler.getErrorMessage(err)).match('Please fill');
+            should(errorHandler.getErrorMessage(err)).match(/Please fill/);
             should(errorHandler.getErrorMessage(err)).match(/items|values/);
+            cb();
           });
         },
-        function(err){
+        function (err) {
           should.not.exist(err);
           done();
         }
       );
     });
-	});
 
-  it('should be able to show an error when try to save with no items or' +
-    ' values members', function(done) {
-    record.items = [];
-    record.values= [];
-    record.save(function(err) {
-      should.exist(err);
-      should(errorHandler.getErrorMessage(err)).match('Please assign items');
-      done();
-    });
-  });
+    it('should save with some items', function (done) {
+      record.items = [optItem._id];
+      record.values = [];
+      record.save(function (err, data) {
+        should.not.exist(err);
+        console.log(data);
+        done();
+      });
 
-  it('should save with some items', function(done) {
-    record.items = ['Item1'];
-    record.values= [];
-    record.save(function(err) {
-      should.not.exist(err);
-      done();
     });
 
   });
 
-	afterEach(function(done) { 
-		Record.remove().exec();
-		User.remove().exec();
+  afterEach(function (done) {
+    Record.remove().exec();
+    OptItem.remove().exec();
+    Option.remove().exec();
+    User.remove().exec();
 
-		done();
-	});
+    done();
+  });
 });

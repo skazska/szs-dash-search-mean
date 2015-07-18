@@ -10,10 +10,15 @@ var mongoose = require('mongoose'),
  * Record Schema
  */
 var RecordSchema = new Schema({
-	name: {
-		type: String,
-		default: '',
-		required: 'Please fill Record name',
+	items: {
+    type: [ Schema.ObjectId ],
+    required: 'Please fill items',
+//    validate: [notEmpty, 'Please assign items'],
+    index: true
+	},
+	values: {
+		type: [ Schema.Mixed ],
+//		required: 'Please fill values',
 		trim: true
 	},
 	created: {
@@ -25,5 +30,9 @@ var RecordSchema = new Schema({
 		ref: 'User'
 	}
 });
+
+//function notEmpty(value){
+//  return value.length > 0;
+//}
 
 mongoose.model('Record', RecordSchema);

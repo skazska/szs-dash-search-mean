@@ -38,14 +38,16 @@ describe('Option Model Unit Tests:', function() {
 			displayName: 'Full Name',
 			email: 'test@test.com',
 			username: 'username',
-			password: 'password'
+			password: 'password',
+      provider: 'local'
+
 		});
 
-		user.save(function() { 
-			option = new Option({
-				user: user
-			});
+    option = new Option({
+      user: user
+    });
 
+    user.save(function() {
 			done();
 		});
 	});
