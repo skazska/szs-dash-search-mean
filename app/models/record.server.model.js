@@ -21,7 +21,10 @@ var RecordSchema = new Schema({
 //		required: 'Please fill values',
 		trim: true
 	},
-	created: {
+  actualUntil: {
+    type: Date
+  },
+  created: {
 		type: Date,
 		default: Date.now
 	},
@@ -34,5 +37,16 @@ var RecordSchema = new Schema({
 //function notEmpty(value){
 //  return value.length > 0;
 //}
+
+/**
+ * middleware pre-save
+ * - fills actualUntil with now + 30 days if empty
+ */
+RecordSchema.pre('save', function (next) {
+  if (!this.actualUntil) {
+    this.actualUntil = Date.now() + 1000 * 60 * 60 * 24 * 30;
+  }
+  next();
+});
 
 mongoose.model('Record', RecordSchema);

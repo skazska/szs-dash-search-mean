@@ -1,5 +1,18 @@
 'use strict';
 
+/**
+ * Routes
+ * @param app
+ *
+ * /records
+ *  get - returns list
+ *  post - creates record and returns it
+ * /records/:recordId
+ *  get - returns record by _id
+ *  put - update record by _id
+ *  delete - removes record
+ */
+
 module.exports = function(app) {
 	var users = require('../controllers/users.server.controller.js');
 	var records = require('../controllers/records.server.controller.js');
