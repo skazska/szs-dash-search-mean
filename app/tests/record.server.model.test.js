@@ -101,12 +101,15 @@ describe('Record Model Unit Tests:', function() {
       );
     });
 
-    it('should save with some items', function (done) {
+    it('should save with some items and set actualUntil to now +30 days', function (done) {
       record.items = [optItem._id];
       record.values = [];
+      var dt1 = new Date(Date.now() + 1000*60*60*24*30);
       record.save(function (err, data) {
+        var dt2 = new Date(Date.now() + 1000*60*60*24*30);
         should.not.exist(err);
-        console.log(data);
+        (data.actualUntil).should.not.be.lessThan(dt1);
+        (data.actualUntil).should.not.be.greaterThan(dt2);
         done();
       });
 
