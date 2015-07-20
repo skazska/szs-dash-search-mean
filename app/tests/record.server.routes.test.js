@@ -168,10 +168,12 @@ describe('Record CRUD:', function() {
             var records = recordsGetRes.body;
             records.should.be.an.Array().which.is.not.empty();
             //check all records correspond context user
-            should(async.every(records, function(rec){
-              return rec.user._id == cont.user._id;
-            })).be.true();
-            done();
+            async.every(records, function(rec, cb){
+              cb(rec.user._id == cont.user._id);
+            }, function(result){
+              result.should.be.true();
+              done();
+            });
           });
         });
       });
@@ -179,11 +181,10 @@ describe('Record CRUD:', function() {
   });
 
   //get own record an update
-  describe('/records/:recordId(GET) - list', function() {
+  describe('/records/:recordId(GET) - own record', function() {
     conts.forEach(function (cont) {
       it('should return users record', function(done){
         auth(cont.credentials, function () {
-
           agent.get(urlPrefix+'/'+cont.record._id).end(function(recordsGetErr, recordsGetRes) {
             if (recordsGetErr) done(recordsGetErr);
 //            should.not.exist(recordsGetErr, 'error getting record:'+cont.id);
@@ -191,7 +192,9 @@ describe('Record CRUD:', function() {
             var record = recordsGetRes.body;
             record.should.be.an.Object('incorrect record returned:'+cont.id)
               .with.properties(['_id', 'items', 'values', 'actualUntil']);
-            record.items.should.containDeep(cont.record.items);
+            record.items.should.containDeep(
+              cont.record.toObject().items//.map(function(item){return item;})
+            );
             done();
 
           });
@@ -201,7 +204,7 @@ describe('Record CRUD:', function() {
   });
 
   //get other`s record
-  describe('/records/:recordId(GET) - list', function() {
+  describe('/records/:recordId(GET) - others record', function() {
     conts.forEach(function (cont) {
       it('should refuse request for record of other user', function(done){
         auth(cont.otherCredentials, function () {
@@ -211,157 +214,81 @@ describe('Record CRUD:', function() {
     });
   });
 
-/*
-	it('should not be able to save Record instance if no name is provided', function(done) {
-		// Invalidate name field
-		record.name = '';
+  //update own record
+  describe('/records/:recordId(PUT) - modify own record', function() {
+    conts.forEach(function (cont) {
+      it('should return users record', function(done){
+        cont.record.values.push('test');
+        auth(cont.credentials, function () {
+          agent.put(urlPrefix+'/'+cont.record._id).send(cont.record).expect(200)
+            .end(function(recordsGetErr, recordsGetRes) {
+              if (recordsGetErr) done(recordsGetErr);
+//              recordsGetRes.status.should.be.within(200, 399);
+              agent.put(urlPrefix+'/'+cont.record._id).end(function(recErr, recRes){
+                if (recErr) done(recErr);
+                var record = recRes.body;
+                record.values.should.containDeep(
+                  cont.record.toObject().values
+                );
+                done();
 
-		agent.post('/auth/signin')
-			.send(credentials)
-			.expect(200)
-			.end(function(signinErr, signinRes) {
-				// Handle signin error
-				if (signinErr) done(signinErr);
+              });
 
-				// Get the userId
-				var userId = user1.id;
+            });
+        });
+      });
+    });
+  });
 
-				// Save a new Record
-				agent.post('/records')
-					.send(record)
-					.expect(400)
-					.end(function(recordSaveErr, recordSaveRes) {
-						// Set message assertion
-						(recordSaveRes.body.message).should.match('Please fill Record name');
-						
-						// Handle Record save error
-						done(recordSaveErr);
-					});
-			});
-	});
+  //modify other`s record
+  describe('/records/:recordId(PUT) - modify others record', function() {
+    conts.forEach(function (cont) {
+      it('should refuse request for record of other user', function(done){
+        auth(cont.otherCredentials, function () {
+          agent.put(urlPrefix+'/'+cont.record._id).send(cont.record).expect(403, done);
+        });
+      });
+    });
+  });
 
-	it('should be able to update Record instance if signed in', function(done) {
-		agent.post('/auth/signin')
-			.send(credentials)
-			.expect(200)
-			.end(function(signinErr, signinRes) {
-				// Handle signin error
-				if (signinErr) done(signinErr);
+  //remove other`s record
+  describe('/records/:recordId(DELETE) - remove others record', function() {
+    conts.forEach(function (cont) {
+      it('should refuse request for record of other user', function(done){
+        auth(cont.otherCredentials, function () {
+          agent.delete(urlPrefix+'/'+cont.record._id).send(cont.record).expect(403, done);
+        });
+      });
+    });
+  });
 
-				// Get the userId
-				var userId = user1.id;
+  //remove own record
+  describe('/records/:recordId(DELETE) - remove own record', function() {
+    conts.forEach(function (cont) {
+      it('should refuse request for record of other user', function(done){
+        auth(cont.credentials, function () {
+          agent.delete(urlPrefix+'/'+cont.record._id).send(cont.record).expect(200, done);
+        });
+      });
+    });
+  });
 
-				// Save a new Record
-				agent.post('/records')
-					.send(record)
-					.expect(200)
-					.end(function(recordSaveErr, recordSaveRes) {
-						// Handle Record save error
-						if (recordSaveErr) done(recordSaveErr);
+  //check no records left
+  describe('/records(GET) - empty list', function() {
+    conts.forEach(function (cont) {
+      it('should return list ot user`s records', function (done) {
+        auth(cont.credentials, function () {
+          agent.get(urlPrefix).end(function(recordsGetErr, recordsGetRes) {
+            if (recordsGetErr) done(recordsGetErr);
+//            should.not.exist(recordsGetErr, 'error getting records:'+cont.id);
+            recordsGetRes.status.should.be.within(200, 399);
+            var records = recordsGetRes.body;
+            records.should.be.an.Array().which.is.empty();
+            done();
+          });
+        });
+      });
+    });
+  });
 
-						// Update Record name
-						record.name = 'WHY YOU GOTTA BE SO MEAN?';
-
-						// Update existing Record
-						agent.put('/records/' + recordSaveRes.body._id)
-							.send(record)
-							.expect(200)
-							.end(function(recordUpdateErr, recordUpdateRes) {
-								// Handle Record update error
-								if (recordUpdateErr) done(recordUpdateErr);
-
-								// Set assertions
-								(recordUpdateRes.body._id).should.equal(recordSaveRes.body._id);
-								(recordUpdateRes.body.name).should.match('WHY YOU GOTTA BE SO MEAN?');
-
-								// Call the assertion callback
-								done();
-							});
-					});
-			});
-	});
-
-	it('should be able to get a single Record if not signed in', function(done) {
-		// Create new Record model instance
-		var recordObj = new Record(record);
-
-		// Save the Record
-		recordObj.save(function() {
-			request(app).get('/records/' + recordObj._id)
-				.end(function(req, res) {
-					// Set assertion
-					res.body.should.be.an.Object.with.property('name', record.name);
-
-					// Call the assertion callback
-					done();
-				});
-		});
-	});
-
-	it('should be able to delete Record instance if signed in', function(done) {
-		agent.post('/auth/signin')
-			.send(credentials)
-			.expect(200)
-			.end(function(signinErr, signinRes) {
-				// Handle signin error
-				if (signinErr) done(signinErr);
-
-				// Get the userId
-				var userId = user1.id;
-
-				// Save a new Record
-				agent.post('/records')
-					.send(record)
-					.expect(200)
-					.end(function(recordSaveErr, recordSaveRes) {
-						// Handle Record save error
-						if (recordSaveErr) done(recordSaveErr);
-
-						// Delete existing Record
-						agent.delete('/records/' + recordSaveRes.body._id)
-							.send(record)
-							.expect(200)
-							.end(function(recordDeleteErr, recordDeleteRes) {
-								// Handle Record error error
-								if (recordDeleteErr) done(recordDeleteErr);
-
-								// Set assertions
-								(recordDeleteRes.body._id).should.equal(recordSaveRes.body._id);
-
-								// Call the assertion callback
-								done();
-							});
-					});
-			});
-	});
-
-	it('should not be able to delete Record instance if not signed in', function(done) {
-		// Set Record user 
-		record.user = user1;
-
-		// Create new Record model instance
-		var recordObj = new Record(record);
-
-		// Save the Record
-		recordObj.save(function() {
-			// Try deleting Record
-			request(app).delete('/records/' + recordObj._id)
-			.expect(401)
-			.end(function(recordDeleteErr, recordDeleteRes) {
-				// Set message assertion
-				(recordDeleteRes.body.message).should.match('User is not logged in');
-
-				// Handle Record error error
-				done(recordDeleteErr);
-			});
-
-		});
-	});
-
-	afterEach(function(done) {
-		User.remove().exec();
-		Record.remove().exec();
-		done();
-	});
-  */
 });
