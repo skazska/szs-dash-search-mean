@@ -210,7 +210,7 @@ describe('Opt item CRUD tests', function() {
 			request(app).get(urlPrefix+'')
 				.end(function(req, res) {
 					// Set assertion
-					res.body.should.be.an.Array.with.lengthOf(1);
+					res.body.should.be.an.Array().with.length(1);
 
 					// Call the assertion callback
           done();
@@ -230,7 +230,7 @@ describe('Opt item CRUD tests', function() {
 			request(app).get(urlPrefix+'/' + optItemObj._id)
 				.end(function(req, res) {
 					// Set assertion
-					res.body.should.be.an.Object.with.property('title', optItem.title);
+					res.body.should.be.an.Object().with.property('title', optItem.title);
 
 					// Call the assertion callback
 					done();

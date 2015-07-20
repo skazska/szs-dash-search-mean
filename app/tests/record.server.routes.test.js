@@ -134,17 +134,20 @@ describe('Record CRUD:', function() {
 
   //posts
   describe('/records(POST) - create', function(){
-    conts.forEach(function(cont){
+    conts.forEach(function(cont, i){
       it('should process and return record when authorized'+ cont.id, function(done){
         auth(cont.credentials, function(err){
           if (err) done(err);
-          agent.post('/records').send(cont.record).end(
+          agent.post(urlPrefix).send(cont.record).expect(200).end(
             function(postErr, postRes){
-//              if (postErr) done(postErr);
-              should.not.exist(postErr, 'error posting record:'+cont.id);
-              (postRes).should.have.a.properties(['_id', 'user'], 'post response have no _id or user:'+cont.id)
-                .which.is.not.empty('post response`s _id or user are empty:'+cont.id);
-              (postRes.user).should.be.equal(post.user._id, 'post response`s user _id does not match:'+cont.id);
+              if (postErr) done(postErr);
+              var record = postRes.body;
+              record.should.be.Object().with.properties(['user', '_id']);
+              record.user.should.be.eql(cont.user._id.toString());
+
+              //prepare to next tests
+              conts[i].record._id = record._id;
+
               done();
             }
           );
@@ -158,16 +161,16 @@ describe('Record CRUD:', function() {
     conts.forEach(function (cont) {
       it('should return list ot user`s records', function(done){
         auth(cont.credentials, function(){
-          agent.get('/records').end(function(recordsGetErr, recordsGetRes) {
-//            if (recordsGetErr) done(recordsGetErr);
-            should.not.exist(recordsGetErr, 'error getting records:'+cont.id);
+          agent.get(urlPrefix).end(function(recordsGetErr, recordsGetRes) {
+            if (recordsGetErr) done(recordsGetErr);
+//            should.not.exist(recordsGetErr, 'error getting records:'+cont.id);
+            recordsGetRes.status.should.be.within(200, 399);
             var records = recordsGetRes.body;
-            records.should.be.an.Array.with.length.greaterThan(0, 'no records in list:'+cont.id);
+            records.should.be.an.Array().which.is.not.empty();
             //check all records correspond context user
-            var good = async.every(records, function(rec, cb){
-              cb(rec.user._id == cont.user._id);
-            });
-            (good).should.be.ok('other user`s records got:'+cont.id);
+            should(async.every(records, function(rec){
+              return rec.user._id == cont.user._id;
+            })).be.true();
             done();
           });
         });
@@ -175,19 +178,22 @@ describe('Record CRUD:', function() {
     });
   });
 
-  //get own record
+  //get own record an update
   describe('/records/:recordId(GET) - list', function() {
     conts.forEach(function (cont) {
       it('should return users record', function(done){
         auth(cont.credentials, function () {
-          agent.get('/records/'+cont.record._id).end(function(recordsGetErr, recordsGetRes) {
-//            if (recordsGetErr) done(recordsGetErr);
-            should.not.exist(recordsGetErr, 'error getting record:'+cont.id);
+
+          agent.get(urlPrefix+'/'+cont.record._id).end(function(recordsGetErr, recordsGetRes) {
+            if (recordsGetErr) done(recordsGetErr);
+//            should.not.exist(recordsGetErr, 'error getting record:'+cont.id);
+            recordsGetRes.status.should.be.within(200, 399);
             var record = recordsGetRes.body;
             record.should.be.an.Object('incorrect record returned:'+cont.id)
               .with.properties(['_id', 'items', 'values', 'actualUntil']);
             record.items.should.containDeep(cont.record.items);
             done();
+
           });
         });
       });
@@ -199,15 +205,7 @@ describe('Record CRUD:', function() {
     conts.forEach(function (cont) {
       it('should refuse request for record of other user', function(done){
         auth(cont.otherCredentials, function () {
-          agent.get('/records/'+cont.record._id).end(function(recordsGetErr, recordsGetRes) {
-//            if (recordsGetErr) callback(recordsGetErr);
-            should.not.exist(recordsGetErr, 'error getting record:'+cont.id);
-            var record = recordsGetRes.body;
-            record.should.be.an.Object('incorrect record returned:'+cont.id)
-              .with.properties(['_id', 'items', 'values', 'actualUntil']);
-            record.items.should.containDeep(cont.record.items);
-            callback();
-          });
+          agent.get(urlPrefix+'/'+cont.record._id).expect(404, done);
         });
       });
     });
