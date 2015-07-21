@@ -1,5 +1,32 @@
 'use strict';
 
+/**
+ * Records module client controller tests
+ * Methods:
+ * init():
+ * - should record.GET if recordId is provided (through stateParams) and set $scope.record
+ * - should redirect to list providing message, and skip its step from history
+ * - should initiate $scope.record if no recordId is provided (through stateParams)
+ * - should clear $scope`s data like: options and values arrays
+ * send():
+ * - should record.POST $scope.record data if it has no _id and redirect to view using _id from response
+ * - should record.PUT $scope.record data if it has _id and redirect to view
+ * remove(record):
+ * - should record.DELETE $scope.record data and redirect to list if no record provided
+ * - should record.DELETE record data and remove it from $scope.records
+ * list():
+ * - should record.GET and set to $scope.records
+ * addOption(option):
+ * -should push option into $scope.options
+ * delOption(option):
+ * -should remove option from $scope.options
+ * editValue():
+ * - should set $scope.mode to 'editValue'
+ * setValue():
+ * - should push $scope.value to $scope.values
+ */
+
+
 (function() {
 	// Records Controller Spec
 	describe('Records Controller Tests', function() {
