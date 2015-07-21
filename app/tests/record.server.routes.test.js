@@ -208,7 +208,7 @@ describe('Record CRUD:', function() {
     conts.forEach(function (cont) {
       it('should refuse request for record of other user', function(done){
         auth(cont.otherCredentials, function () {
-          agent.get(urlPrefix+'/'+cont.record._id).expect(404, done);
+          agent.get(urlPrefix+'/'+cont.record._id).expect(403, done);
         });
       });
     });
