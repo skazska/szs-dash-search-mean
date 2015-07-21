@@ -23,7 +23,7 @@ module.exports = function(app) {
 		.post(users.requiresLogin, records.create);
 
 	app.route('/records/:recordId')
-		.get(records.read)
+		.get(users.requiresLogin, records.hasAuthorization, records.read)
 		.put(users.requiresLogin, records.hasAuthorization, records.update)
 		.delete(users.requiresLogin, records.hasAuthorization, records.delete);
 
