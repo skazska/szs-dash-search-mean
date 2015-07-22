@@ -1,0 +1,31 @@
+<form class="form-horizontal" data-ng-submit="update()" novalidate>
+    <fieldset>
+        <div class="form-group">
+            <label class="control-label" for="_id">Id</label>
+            <div class="controls">
+                <input disabled type="text" data-ng-model="option._id" id="_id" class="form-control" placeholder="Id" required>
+            </div>
+
+            <label class="control-label" for="title">Title</label>
+            <div class="controls">
+                <input type="text" data-ng-model="option.title" id="title" class="form-control" placeholder="Same as id">
+            </div>
+
+            <label class="control-label" for="logo">Logo</label>
+            <div class="controls">
+                <input type="url" data-ng-model="option.logo" id="logo" class="form-control" placeholder="url to image">
+            </div>
+
+            <label class="control-label" for="description">Description</label>
+            <div class="controls">
+                <textarea data-ng-model="option.description" id="description" class="form-control" placeholder="descriptive text"></textarea>
+            </div>
+        </div>
+        <div class="form-group">
+            <input type="submit" value="Update" class="btn btn-default">
+        </div>
+        <div data-ng-show="error" class="text-danger">
+            <strong data-ng-bind="error"></strong>
+        </div>
+    </fieldset>
+</form>
