@@ -1,5 +1,5 @@
 <section data-ng-init="init()">
-    <small data-ng-show="option">
+    <small data-ng-show="record">
         <em class="text-muted">
             Posted on
             <span data-ng-bind="record.created | date:'mediumDate'"></span>
@@ -8,7 +8,7 @@
         </em>
         <hr>
     </small>
-    <div class="pull-right" data-ng-show="((authentication.user) && (authentication.user._id == record.user._id))">
+    <div class="pull-right" data-ng-show="(record) &&((authentication.user) && (authentication.user._id == record.user._id))">
         <a class="btn btn-primary" ui-sref="record.one.edit({recordId: record._id})">
             <i class="glyphicon glyphicon-edit"></i>
         </a>
@@ -17,7 +17,9 @@
         </a>
     </div>
     <div class="page-header" >
-        <h1 data-ng-show="record" data-ng-bind="record.title + '(' + record._id + ')'"></h1>
+        <h1><span data-ng-hide="record._id">New</span>
+            Record
+            <span data-ng-bind="record._id"></h1>
     </div>
     <section ui-view></section>
 </section>

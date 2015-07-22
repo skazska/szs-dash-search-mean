@@ -1,4 +1,9 @@
-<section">
-    <div data-ng-bind="option.logo"></div>
-    <p data-ng-bind="option.description"></p>
-</section>
+<div data-ng-bind="record.type"></div>
+<div data-ng-bind="record.actualUntil"></div>
+<div>
+    <span data-ng-repeat="record.items in item">item</span>
+</div>
+<div>
+    <span data-ng-repeat="record.values in value">value</span>
+</div>
+

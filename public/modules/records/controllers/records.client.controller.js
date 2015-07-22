@@ -60,7 +60,7 @@ angular.module('records').controller('RecordsController', ['$scope', '$statePara
 
           },
           function (httpResponse) {
-            $state.go('record.list', {message: httpResponse.status+','+httpResponse.message});
+            $state.go('record.list', {message: httpResponse.status+','+httpResponse.data});
           }
         );
       } else {
@@ -78,7 +78,7 @@ angular.module('records').controller('RecordsController', ['$scope', '$statePara
     $scope.send = function() {
       if ($scope.record._id) {
         $scope.record.$update(function() {
-          $state.go('record.one.view');
+          $state.go('record.one.view', {recordId: $scope.record._id});
         }, function(errorResponse) {
           $scope.error = errorResponse.data.message;
         });
@@ -108,7 +108,7 @@ angular.module('records').controller('RecordsController', ['$scope', '$statePara
         }
       } else {
         $scope.record.$remove(function() {
-          $state.go('record.list', {recordId:response._id});
+          $state.go('record.list');
         });
       }
     };
@@ -118,6 +118,7 @@ angular.module('records').controller('RecordsController', ['$scope', '$statePara
     * - should record.GET and set to $scope.records
      */
     $scope.list = function() {
+      $scope.message = $stateParams.message;
       $scope.records = Records.query();
     };
 

@@ -1,6 +1,7 @@
 <section data-ng-controller="RecordsController">
     <section ui-view></section>
     <div class="alert alert-warning text-center" data-ng-hide="!records.$resolved || records.length">
-        No Options yet, why don&quot;t you <a ui-sref="record.create">create one</a>?
+        No Records yet, why don&quot;t you <a ui-sref="record.one.create">create
+        one</a>?
     </div>
 </section>
