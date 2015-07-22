@@ -22,6 +22,7 @@ var user, option, optItem, record;
  * Record Schema
  * This schema represents the record, record is the main data being of project
  * It consists of:
+ * type - value type(schema)
  * actualUntil - a date of expiration
  * items - an Item reference list (Item is a classification atom,
  * represented by an Item Schema) list should contain at least (one) Item
@@ -58,7 +59,7 @@ describe('Record Model Unit Tests:', function() {
       user:user
     });
 
-    record = new Record({
+    record = new Records({
       user: user
     });
     async.eachSeries(
@@ -83,7 +84,7 @@ describe('Record Model Unit Tests:', function() {
     });
     it('should be able to show an error when try to save with no items or' +
       ' values members', function (done) {
-      var records = [new Record({}), new Record({items: []}), new Record({values: []})];
+      var records = [new Records({}), new Records({items: []}), new Records({values: []})];
       async.each(
         records,
         function (rec, cb) {

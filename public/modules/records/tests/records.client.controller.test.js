@@ -5,7 +5,7 @@
  * Methods:
  * init():
  * - should record.GET if recordId is provided (through stateParams) and set $scope.record
- * - should redirect to list providing message, and skip its step from history
+ * - should redirect to list providing message, and skip its step from history on error response
  * - should initiate $scope.record if no recordId is provided (through stateParams)
  * - should clear $scope`s data like: options and values arrays
  * send():
@@ -26,16 +26,34 @@
  * - should push $scope.value to $scope.values
  */
 
+/**
+ * Record Schema
+ * This schema represents the record, record is the main data being of project
+ * It consists of:
+ * type - value type(schema)
+ * actualUntil - a date of expiration
+ * items - an Item reference list (Item is a classification atom,
+ * represented by an Item Schema) list should contain at least (one) Item
+ * values - list of subject data records relevant to the classification set
+ * -------------------
+ * created, user - technical fields
+ */
+
 
 (function() {
 	// Records Controller Spec
 	describe('Records Controller Tests', function() {
 		// Initialize global variables
 		var RecordsController,
-		scope,
-		$httpBackend,
-		$stateParams,
-		$location;
+		  scope,
+		  $httpBackend,
+		  $stateParams,
+      $state,
+		  $location,
+      Records,
+      urlPrefix,
+      record,
+      recordData;
 
 		// The $resource service augments the response object with methods for updating and deleting the resource.
 		// If we were to use the standard toEqual matcher, our tests would fail because the test values would not match
@@ -56,18 +74,28 @@
 			});
 		});
 
+    beforeEach(module('templates'));
 		// Then we can start by loading the main application module
 		beforeEach(module(ApplicationConfiguration.applicationModuleName));
 
 		// The injector ignores leading and trailing underscores here (i.e. _$httpBackend_).
 		// This allows us to inject a service but then attach it to a variable
 		// with the same name as the service.
-		beforeEach(inject(function($controller, $rootScope, _$location_, _$stateParams_, _$httpBackend_) {
+		beforeEach(inject(function($controller, $rootScope, _$location_, _$stateParams_, _$state_, _$httpBackend_, _Records_, Cfg) {
 			// Set a new global scope
-			scope = $rootScope.$new();
+      Records = _Records_;
+      scope = $rootScope.$new();
+      urlPrefix = Cfg('search_url');
+      recordData = {
+        type: 'tp',
+        items: ['Item1', 'Item2'],
+        values: ['val1', 'val2']
+      };
+      record = new Records(recordData);
 
 			// Point global variables to injected services
-			$stateParams = _$stateParams_;
+			$state = _$state_;
+      $stateParams = _$stateParams_;
 			$httpBackend = _$httpBackend_;
 			$location = _$location_;
 
@@ -75,116 +103,113 @@
 			RecordsController = $controller('RecordsController', {
 				$scope: scope
 			});
+
+
 		}));
 
-		it('$scope.find() should create an array with at least one Record object fetched from XHR', inject(function(Records) {
-			// Create sample Record using the Records service
-			var sampleRecord = new Records({
-				name: 'New Record'
-			});
+    describe('$scope.init()', function(){
+//      beforeEach(inject(function($rootScope){
+//      }));
+      it('should record.GET if recordId is provided (through stateParams) and set $scope.record',function(){
+        $stateParams.recordId = 'RID';
+        $httpBackend.expectGET(urlPrefix+'records/'+$stateParams.recordId)
+          .respond(record);
+        scope.init();
+        $httpBackend.flush();
+        expect(scope.record).toEqualData(recordData);
+      });
+      it('should redirect to list providing message, and skip its step from history',inject(function($window){
+        $stateParams.recordId = 'RID';
+        $httpBackend.expectGET(urlPrefix+'records/RID')
+          .respond(403, 'forbidden');
+        scope.init();
+        $httpBackend.flush();
+        expect($location.path()).toBe('/records/list');
+        expect($stateParams.message).toBe('403, forbidden')
+        expect($window.history.length).toBe(1);
+      }));
+      it('should initiate $scope.record if no recordId is provided (through stateParams)',function(){
+        $httpBackend.expectGET(urlPrefix+'records/RID')
+          .respond(403, 'forbidden');
+        scope.init();
+        expect($httpBackend.flush).toThrow();
+        expect(scope.record).toEqualData({items:[], values:[]})
+      });
+      it('should clear $scope`s data like: options and values arrays',function(){
+        scope.options = ['opt'];
+        scope.values = ['val'];
+        scope.init();
+        expect(scope.options).toEqualData([]);
+        expect(scope.values).toEqualData([]);
+      });
+    });
 
-			// Create a sample Records array that includes the new Record
-			var sampleRecords = [sampleRecord];
+    describe('send():', function(){
+      it('should record.POST $scope.record data if it has no _id and redirect to view using _id from response', function(){
+        scope.record = record;
+        $httpBackend.expectPOST(urlPrefix+'records', recordData).respond(200,{_id:'RID'});
+        scope.send();
+        $httpBackend.flush();
+        expect($location.path()).toBe('/records/RID/view');
+      });
+      it('should record.PUT $scope.record data if it has _id and redirect to view', function(){
+        scope.record = record;
+        scope.record._id = 'RID';
+        recordData._id = 'RID';
+        $httpBackend.expectPUT(urlPrefix+'records/RID', recordData).respond(200,{_id:'RID'});
+        scope.send();
+        $httpBackend.flush();
+        expect($location.path()).toBe('/records/RID/view');
+      });
+    });
+    describe('remove(record):', function(){
+      it('should record.DELETE $scope.record data and redirect to list if no record provided', function(){
+        scope.record = record;
+        scope.record._id = 'RID';
+        $httpBackend.expectDELETE(urlPrefix+'records/RID').respond(200);
+        scope.remove();
+        $httpBackend.flush();
+        expect($location.path()).toBe('/records/list');
 
-			// Set GET response
-			$httpBackend.expectGET('records').respond(sampleRecords);
+      });
+      it('should record.DELETE record data and remove it from $scope.records', function(){
+        scope.records = [new Records({_id:'R1'}), new Records({_id:'R2'})];
+        $httpBackend.expectDELETE(urlPrefix+'records/R1').respond(200);
+        scope.remove(scope.records[0]);
+        $httpBackend.flush();
+        expect(scope.records.length).toBe(1);
+        expect(scope.records[0]._id).toBe('R2');
+      });
+    });
+    describe('list():', function(){
+      it('should record.GET and set to $scope.records', function(){
+        var records = [new Records({_id:'R1'}), new Records({_id:'R2'})];
+        $httpBackend.expectGET(urlPrefix+'records')
+          .respond(records);
+        scope.init();
+        $httpBackend.flush();
+        expect(scope.records).toEqualData(records);
+      });
+    });
+    describe('addOption(option):', function() {
+      it('should push option into $scope.options', function () {
 
-			// Run controller functionality
-			scope.find();
-			$httpBackend.flush();
+      });
+    });
+    describe('delOption(option):', function() {
+      it('should remove option from $scope.options', function () {
 
-			// Test scope value
-			expect(scope.records).toEqualData(sampleRecords);
-		}));
+      });
+    });
+    describe('editValue():', function() {
+      it('should set $scope.mode to "editValue"', function () {
 
-		it('$scope.findOne() should create an array with one Record object fetched from XHR using a recordId URL parameter', inject(function(Records) {
-			// Define a sample Record object
-			var sampleRecord = new Records({
-				name: 'New Record'
-			});
+      });
+    });
+    describe('setValue():', function() {
+      it('should push $scope.value to $scope.values', function () {
 
-			// Set the URL parameter
-			$stateParams.recordId = '525a8422f6d0f87f0e407a33';
-
-			// Set GET response
-			$httpBackend.expectGET(/records\/([0-9a-fA-F]{24})$/).respond(sampleRecord);
-
-			// Run controller functionality
-			scope.findOne();
-			$httpBackend.flush();
-
-			// Test scope value
-			expect(scope.record).toEqualData(sampleRecord);
-		}));
-
-		it('$scope.create() with valid form data should send a POST request with the form input values and then locate to new object URL', inject(function(Records) {
-			// Create a sample Record object
-			var sampleRecordPostData = new Records({
-				name: 'New Record'
-			});
-
-			// Create a sample Record response
-			var sampleRecordResponse = new Records({
-				_id: '525cf20451979dea2c000001',
-				name: 'New Record'
-			});
-
-			// Fixture mock form input values
-			scope.name = 'New Record';
-
-			// Set POST response
-			$httpBackend.expectPOST('records', sampleRecordPostData).respond(sampleRecordResponse);
-
-			// Run controller functionality
-			scope.create();
-			$httpBackend.flush();
-
-			// Test form inputs are reset
-			expect(scope.name).toEqual('');
-
-			// Test URL redirection after the Record was created
-			expect($location.path()).toBe('/records/' + sampleRecordResponse._id);
-		}));
-
-		it('$scope.update() should update a valid Record', inject(function(Records) {
-			// Define a sample Record put data
-			var sampleRecordPutData = new Records({
-				_id: '525cf20451979dea2c000001',
-				name: 'New Record'
-			});
-
-			// Mock Record in scope
-			scope.record = sampleRecordPutData;
-
-			// Set PUT response
-			$httpBackend.expectPUT(/records\/([0-9a-fA-F]{24})$/).respond();
-
-			// Run controller functionality
-			scope.update();
-			$httpBackend.flush();
-
-			// Test URL location to new object
-			expect($location.path()).toBe('/records/' + sampleRecordPutData._id);
-		}));
-
-		it('$scope.remove() should send a DELETE request with a valid recordId and remove the Record from the scope', inject(function(Records) {
-			// Create new Record object
-			var sampleRecord = new Records({
-				_id: '525a8422f6d0f87f0e407a33'
-			});
-
-			// Create new Records array and include the Record
-			scope.records = [sampleRecord];
-
-			// Set expected DELETE response
-			$httpBackend.expectDELETE(/records\/([0-9a-fA-F]{24})$/).respond(204);
-
-			// Run controller functionality
-			scope.remove(sampleRecord);
-			$httpBackend.flush();
-
-			// Test array after successful delete
-			expect(scope.records.length).toBe(0);
-		}));
+      });
+    });
 	});
 }());
