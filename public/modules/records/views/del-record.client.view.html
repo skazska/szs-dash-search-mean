@@ -1,11 +1,9 @@
-<section>
-    <div class="alert alert-warning text-center" >
-        <strong>You are willing to delete this Option. It is potentially data loose action. We need you to confirm It.</strong>
-        <hr width="50%">
-        <button type="button" class="btn btn-danger" data-ng-click="remove()">Delete</button>
-        <button type="button" class="btn btn-primary" data-ng-click="state.go('option.one.view', {optionId:option._id})">Cancel</button>
-    </div>
-
-    <div data-ng-bind="option.logo"></div>
-    <p data-ng-bind="option.description"></p>
-</section>
+<div class="alert alert-warning text-center" >
+    <strong>You are willing to delete this Option. It is potentially data loose action. We need you to confirm It.</strong>
+    <hr width="50%">
+    <button type="button" class="btn btn-danger" data-ng-click="remove()">Delete</button>
+    <button type="button" class="btn btn-primary"
+            data-ng-click="state.go('option.one.view', {optionId:option._id},{location:'replace'})">
+        Cancel
+    </button>
+</div>

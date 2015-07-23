@@ -37,7 +37,7 @@ angular.module('records').config(['$stateProvider',
 				url: '/:recordId/edit',
 				templateUrl: 'modules/records/views/edit-record.client.view.html'
 			})
-			.state('record.one.delete', {
+			.state('record.one.view.delete', {
 				url: '/:recordId/delete',
 				templateUrl: 'modules/records/views/del-record.client.view.html'
 			})

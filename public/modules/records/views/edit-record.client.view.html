@@ -2,14 +2,29 @@
     <form class="form-horizontal" data-ng-submit="update()" novalidate>
         <fieldset>
             <div class="form-group">
-                <label class="control-label" for="_id">Id</label>
+                <label class="control-label" for="actualUntil">Actual
+                    until</label>
                 <div class="controls">
-                    <input disabled type="text" data-ng-model="option._id" id="_id" class="form-control" placeholder="Id" required>
+                    <input type="text" data-ng-model="record.actualUntil"
+                           id="actualUntil"
+                           class="form-control"
+                           placeholder="Actual until date" >
                 </div>
 
-                <label class="control-label" for="title">Title</label>
                 <div class="controls">
-                    <input type="text" data-ng-model="option.title" id="title" class="form-control" placeholder="Same as id">
+                    <label class="control-label" for="addOption">Items</label>
+                    <div class="btn-group" id="addOption">
+                        <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            Action <span class="caret"></span>
+                        </button>
+                        <ul class="dropdown-menu">
+                            <li><a href="#">Action</a></li>
+                            <li><a href="#">Another action</a></li>
+                            <li><a href="#">Something else here</a></li>
+                            <li role="separator" class="divider"></li>
+                            <li><a href="#">Separated link</a></li>
+                        </ul>
+                    </div>
                 </div>
 
                 <label class="control-label" for="logo">Logo</label>
