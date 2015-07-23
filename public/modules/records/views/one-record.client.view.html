@@ -1,5 +1,5 @@
 <section data-ng-init="init()">
-    <small data-ng-show="record">
+    <small data-ng-show="record.user || record.created">
         <em class="text-muted">
             Posted on
             <span data-ng-bind="record.created | date:'mediumDate'"></span>
