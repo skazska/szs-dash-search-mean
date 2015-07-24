@@ -1,5 +1,5 @@
 <div class="col-md-12">
-    <form class="form-horizontal" data-ng-submit="update()" novalidate>
+    <form id="records-form" class="form-horizontal" data-ng-submit="update()" novalidate>
         <fieldset>
             <div class="form-group">
                 <label class="control-label" for="actualUntil">Actual
@@ -11,20 +11,16 @@
                            placeholder="Actual until date" >
                 </div>
                 <hr width="90%">
-                <label class="control-label" for="addOption">Items</label>
-                <div class="btn-group" id="addOption">
-                    <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                        Action <span class="caret"></span>
-                    </button>
-                    <ul class="dropdown-menu">
-                        <li><a href="#">Action</a></li>
-                        <li><a href="#">Another action</a></li>
-                        <li><a href="#">Something else here</a></li>
-                        <li role="separator" class="divider"></li>
-                        <li><a href="#">Separated link</a></li>
-                    </ul>
-                </div>
-                <div class="controls">
+                <label class="control-label" for="items">Items</label>
+                <div id="items" data-ng-init="getOptions()">
+                    <div class="controls" data-ng-repeat="option in options | orderBy:'title'">
+                        <tags-input class="form-control" placeholder="Items"
+                                    aria-describedby="basic-addon1"
+                                    data-ng-model="options[option._id].items"
+                                    display-property="title">
+                            <auto-complete source="getOptItems(option)"></auto-complete>
+                        </tags-input>
+                    </div>
                 </div>
 
                 <label class="control-label" for="logo">Logo</label>

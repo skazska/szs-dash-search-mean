@@ -16,6 +16,10 @@
  * - should record.DELETE record data and remove it from $scope.records
  * list():
  * - should record.GET and set to $scope.records
+ * getOptions():
+ * - should request and return options in promise,
+ * getOptItems(option):
+ * - should request and return option items (authored) in promise,
  * addOption(option):
  * -should push option into $scope.options
  * delOption(option):
@@ -136,10 +140,10 @@
         expect(scope.record).toEqualData({items:[], values:[]})
       });
       it('should clear $scope`s data like: options and values arrays',function(){
-        scope.options = ['opt'];
+        scope.items = ['opt'];
         scope.values = ['val'];
         scope.init();
-        expect(scope.options).toEqualData([]);
+        expect(scope.items).toEqualData([]);
         expect(scope.values).toEqualData([]);
       });
     });
@@ -190,6 +194,31 @@
         $httpBackend.flush();
         expect(scope.records).toEqualData(records);
       });
+    });
+    describe('getOptions():', function(){
+      it('should request and return options (authored) in promise',inject(function(Options){
+        var options = [new Options({_id:'opt1'}), new Options({_id:'opt2'})];
+        $httpBackend.expectGET(urlPrefix+'options')
+          .respond(options);
+//        var opts;
+        scope.getOptions();//.then(function(val){ opts = val; });
+        $httpBackend.flush();
+//        scope.$apply();
+//        expect(opts).toEqualData(options);
+        expect(scope.options).toEqualData(options);
+      }));
+    });
+    describe('getOptItems(option):', function(){
+      it('should request and return option items (authored) in promise',inject(function(OptItems){
+        var optItems = [new OptItems({_id:'Itm2', option:'opt1'}), new OptItems({_id:'Itm2', option:'opt1'})];
+        $httpBackend.expectGET(urlPrefix+'options/opt/items')
+          .respond(optItems);
+        var items;
+        scope.getOptItems({_id:'opt'}).then(function(val){ items = val; });
+        $httpBackend.flush();
+        scope.$apply();
+        expect(items).toEqualData(optItems);
+      }));
     });
     describe('addOption(option):', function() {
       it('should push option into $scope.options', function () {

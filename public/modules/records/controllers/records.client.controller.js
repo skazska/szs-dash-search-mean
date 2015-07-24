@@ -15,6 +15,10 @@
  * - should record.DELETE record data and remove it from $scope.records
  * list():
  * - should record.GET and set to $scope.records
+ * getOptions():
+ * - should request and return options in promise,
+ * getOptItems(option):
+ * - should request and return option items (authored) in promise,
  * addOption(option):
  * -should push option into $scope.options
  * delOption(option):
@@ -39,8 +43,9 @@
  */
 
 // Records controller
-angular.module('records').controller('RecordsController', ['$scope', '$stateParams', '$state', 'Authentication', 'Records',
-	function($scope, $stateParams, $state, Authentication, Records) {
+angular.module('records').controller('RecordsController',
+  ['$scope', '$stateParams', '$state', 'Authentication', 'Records', 'Options', 'OptItems',
+	function($scope, $stateParams, $state, Authentication, Records, Options, OptItems) {
 		$scope.authentication = Authentication;
 
     /**
@@ -66,7 +71,7 @@ angular.module('records').controller('RecordsController', ['$scope', '$statePara
       } else {
         $scope.record = new Records({items:[], values:[]});
       }
-      $scope.options = [];
+      $scope.items = [];
       $scope.values = [];
 		};
 
@@ -120,6 +125,23 @@ angular.module('records').controller('RecordsController', ['$scope', '$statePara
     $scope.list = function() {
       $scope.message = $stateParams.message;
       $scope.records = Records.query();
+    };
+
+    /**
+    * getOptions():
+    * - should request and return options in promise,
+    */
+    $scope.getOptions = function() {
+//      return Options.query().$promise;
+      $scope.options = Options.query();
+    };
+
+    /**
+    * getOptItems(option):
+    * - should request and return option items (authored) in promise,
+    */
+    $scope.getOptItems = function(option) {
+      return OptItems.query({optionId: option._id}).$promise;
     };
 
     /**
