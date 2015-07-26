@@ -88,12 +88,13 @@ exports.list = function(req, res) {
  * Record middleware
  */
 exports.recordByID = function(req, res, next, id) { 
-	Record.findById(id).populate('user', 'displayName').exec(function(err, record) {
-		if (err) return next(err);
-		if (! record) return next(new Error('Failed to load Record ' + id));
-		req.record = record ;
-		next();
-	});
+	Record.findById(id).populate('user', 'displayName').populate('items', 'option title')
+    .exec(function(err, record) {
+      if (err) return next(err);
+      if (! record) return next(new Error('Failed to load Record ' + id));
+      req.record = record ;
+      next();
+	  });
 };
 
 /**

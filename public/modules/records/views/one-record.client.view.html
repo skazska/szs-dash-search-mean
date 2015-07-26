@@ -12,7 +12,9 @@
         <a class="btn btn-primary" ui-sref="record.one.edit({recordId: record._id})">
             <i class="glyphicon glyphicon-edit"></i>
         </a>
-        <a class="btn btn-primary" ui-sref="record.one.delete({recordId: record._id})"> <!--data-ng-click="remove();"-->
+        <a class="btn btn-primary"
+           ui-sref="record.one.view.delete({recordId: record._id})">
+            <!--data-ng-click="remove();"-->
             <i class="glyphicon glyphicon-trash"></i>
         </a>
     </div>

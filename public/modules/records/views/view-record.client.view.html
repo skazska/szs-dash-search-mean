@@ -2,9 +2,10 @@
 <div data-ng-bind="record.type"></div>
 <div data-ng-bind="record.actualUntil"></div>
 <div>
-    <span data-ng-repeat="record.items in item">item</span>
+    <span data-ng-repeat="item in record.items" data-ng-bind="item"></span>
 </div>
 <div>
-    <span data-ng-repeat="record.values in value">value</span>
+    <span data-ng-repeat="value in record.values track by $index" data-ng-bind="value">
+    </span>
 </div>
 

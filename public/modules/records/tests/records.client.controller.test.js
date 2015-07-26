@@ -4,22 +4,27 @@
  * Records module client controller tests
  * Methods:
  * init():
+ * - should call $scope.getOptions(),
  * - should record.GET if recordId is provided (through stateParams) and set $scope.record
  * - should redirect to list providing message, and skip its step from history on error response
  * - should initiate $scope.record if no recordId is provided (through stateParams)
- * - should clear $scope`s data like: options and values arrays
+ * - should clear $scope`s data like: items and values arrays if record not loaded
+ * - should set items distributing among options
  * send():
  * - should record.POST $scope.record data if it has no _id and redirect to view using _id from response
  * - should record.PUT $scope.record data if it has _id and redirect to view
+ * - should compose scope.items into scope.record.items
  * remove(record):
  * - should record.DELETE $scope.record data and redirect to list if no record provided
  * - should record.DELETE record data and remove it from $scope.records
  * list():
  * - should record.GET and set to $scope.records
  * getOptions():
- * - should request and return options in promise,
+ * - should request options and set to $scope.options,
  * getOptItems(option):
  * - should request and return option items (authored) in promise,
+ * getTypes()
+ * - should set $scope.types (TO DO request types)
  * addOption(option):
  * -should push option into $scope.options
  * delOption(option):
@@ -57,7 +62,9 @@
       Records,
       urlPrefix,
       record,
-      recordData;
+      recordData,
+      itemsData,
+      options;
 
 		// The $resource service augments the response object with methods for updating and deleting the resource.
 		// If we were to use the standard toEqual matcher, our tests would fail because the test values would not match
@@ -85,19 +92,28 @@
 		// The injector ignores leading and trailing underscores here (i.e. _$httpBackend_).
 		// This allows us to inject a service but then attach it to a variable
 		// with the same name as the service.
-		beforeEach(inject(function($controller, $rootScope, _$location_, _$stateParams_, _$state_, _$httpBackend_, _Records_, Cfg) {
+		beforeEach(inject(function($controller, $rootScope, _$location_, _$stateParams_, _$state_, _$httpBackend_, _Records_, Cfg, Options) {
 			// Set a new global scope
       Records = _Records_;
       scope = $rootScope.$new();
       urlPrefix = Cfg('search_url');
+
+      itemsData = {
+        opt1:[{_id:'Item1', option:'opt1', title:'Item 1'}],
+        opt2:[{_id:'Item2', option:'opt2', title:'Item 2'}]
+      };
       recordData = {
         type: 'tp',
-        items: ['Item1', 'Item2'],
+        items: [
+          itemsData.opt1[0],
+          itemsData.opt2[0]
+        ],
         values: ['val1', 'val2']
       };
       record = new Records(recordData);
+      options = [new Options({_id:'opt1', title:'Option 1'}), new Options({_id:'opt2', title:'Option 2'})];
 
-			// Point global variables to injected services
+      // Point global variables to injected services
 			$state = _$state_;
       $stateParams = _$stateParams_;
 			$httpBackend = _$httpBackend_;
@@ -112,8 +128,17 @@
 		}));
 
     describe('$scope.init()', function(){
-//      beforeEach(inject(function($rootScope){
-//      }));
+      beforeEach(inject(function($rootScope){
+        $httpBackend.expectGET(urlPrefix+'options')
+          .respond(options);
+      }));
+      it('should call scope`s getOptions', function(){
+        spyOn(scope, 'getOptions').and.callThrough();
+//        $httpBackend.expectGET(urlPrefix+'records/'+$stateParams.recordId).respond(record);
+        scope.init();
+        $httpBackend.flush();
+        expect(scope.getOptions).toHaveBeenCalled();
+      });
       it('should record.GET if recordId is provided (through stateParams) and set $scope.record',function(){
         $stateParams.recordId = 'RID';
         $httpBackend.expectGET(urlPrefix+'records/'+$stateParams.recordId)
@@ -140,27 +165,50 @@
         expect(scope.record).toEqualData({items:[], values:[]})
       });
       it('should clear $scope`s data like: options and values arrays',function(){
-        scope.items = ['opt'];
+        scope.items = {'opt':['Item']};
         scope.values = ['val'];
         scope.init();
-        expect(scope.items).toEqualData([]);
+        $httpBackend.flush();
+//        scope.$apply();
+        expect(scope.items).toEqualData({opt1:[], opt2:[]});
         expect(scope.values).toEqualData([]);
+      });
+      it('should set items distributing among options', function(){
+        $stateParams.recordId = 'RID';
+        $httpBackend.expectGET(urlPrefix+'records/'+$stateParams.recordId)
+          .respond(record);
+        scope.init();
+        $httpBackend.flush();
+        expect(scope.items).toEqualData(itemsData);
+
       });
     });
 
     describe('send():', function(){
+      var recordSend;
+      beforeEach(function(){
+        scope.record = record; scope.record.items = [];
+        scope.items = itemsData;
+        recordSend = angular.copy(recordData);
+        recordSend.items = ['Item1', 'Item2'];
+      });
+      it('should compose scope.items into scope.record.items',function(){
+//        $httpBackend.expectPOST(urlPrefix+'records',
+// recordData).respond(200,{_id:'RID'});
+        scope.send();
+        expect(scope.record).toEqualData(recordSend);
+//        $httpBackend.flush();
+      });
       it('should record.POST $scope.record data if it has no _id and redirect to view using _id from response', function(){
-        scope.record = record;
-        $httpBackend.expectPOST(urlPrefix+'records', recordData).respond(200,{_id:'RID'});
+        $httpBackend.expectPOST(urlPrefix+'records', recordSend).respond(200,{_id:'RID'});
         scope.send();
         $httpBackend.flush();
         expect($location.path()).toBe('/records/RID/view');
       });
       it('should record.PUT $scope.record data if it has _id and redirect to view', function(){
-        scope.record = record;
         scope.record._id = 'RID';
-        recordData._id = 'RID';
-        $httpBackend.expectPUT(urlPrefix+'records/RID', recordData).respond(200,{_id:'RID'});
+        recordSend._id = 'RID';
+        $httpBackend.expectPUT(urlPrefix+'records/RID', recordSend).respond(200,{_id:'RID'});
         scope.send();
         $httpBackend.flush();
         expect($location.path()).toBe('/records/RID/view');
@@ -197,7 +245,6 @@
     });
     describe('getOptions():', function(){
       it('should request and return options (authored) in promise',inject(function(Options){
-        var options = [new Options({_id:'opt1'}), new Options({_id:'opt2'})];
         $httpBackend.expectGET(urlPrefix+'options')
           .respond(options);
 //        var opts;
@@ -210,7 +257,7 @@
     });
     describe('getOptItems(option):', function(){
       it('should request and return option items (authored) in promise',inject(function(OptItems){
-        var optItems = [new OptItems({_id:'Itm2', option:'opt1'}), new OptItems({_id:'Itm2', option:'opt1'})];
+        var optItems = [new OptItems({_id:'Item2', option:'opt1'}), new OptItems({_id:'Item2', option:'opt1'})];
         $httpBackend.expectGET(urlPrefix+'options/opt/items')
           .respond(optItems);
         var items;
@@ -219,6 +266,13 @@
         scope.$apply();
         expect(items).toEqualData(optItems);
       }));
+    });
+    describe('getTypes():', function(){
+      it('should set $scope.types (TO DO from request)', function(){
+        var types = [{_id:'tp1', title:'type 1'}, {_id:'tp2', title:'type 2'}];
+        scope.getTypes();
+        expect(scope.types).toEqualData(types)
+      });
     });
     describe('addOption(option):', function() {
       it('should push option into $scope.options', function () {

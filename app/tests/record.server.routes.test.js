@@ -20,7 +20,7 @@ var urlPrefix = '/search-api/records';
  * This schema represents the record, record is the main data being of project
  * It consists of:
  * actualUntil - a date of expiration
- * items - an Item reference list (Item is a classification atom,
+ * items - an Item list (Item is a classification atom,
  * represented by an Item Schema) list should contain at least (one) Item
  * values - list of subject data records relevant to the classification set
  * -------------------
@@ -87,26 +87,40 @@ describe('Record CRUD:', function() {
     { id: 'test1',
       user:user1, credentials: {username:user1.username, password:user1.password},
       otherUser:user2, otherCredentials: {username:user2.username, password:user2.password},
-      record:new Record({items:[optItem1._id, optItem2._id],values:['first','second']})
+      recordSend:new Record({items:[optItem1._id, optItem2._id],values:['first','second']}),
+      record:new Record({items:[optItem1, optItem2],values:['first','second']})
     },
     { id: 'test2', user:user2,
       credentials: {username:user2.username, password:user2.password},
       otherUser:user1, otherCredentials: {username:user1.username, password:user1.password},
-      record:new Record({items: [optItem1._id],values: [ 'third' ]})
+      recordSend:new Record({items: [optItem1._id],values: [ 'third' ]}),
+      record:new Record({items: [optItem1],values: [ 'third' ]})
     }
   ];
 
   before(function(done){
     // Save a user to the test db and create new Record
-    return async.eachSeries(
-      [user1, user2, option, optItem1, optItem2, optItem3 ],
-      function(model, cb){
-        model.save(function(err, data) {
-          should.not.exist(err, 'Error preparing model ');
-          cb();
-        });
+    async.series([
+      function(callback){
+        async.eachSeries(
+          [user1, user2, option, optItem1, optItem2, optItem3 ],
+          function(model, cb){
+            model.save(function(err, data) {
+              should.not.exist(err, 'Error preparing model ');
+              cb();
+            });
+          },
+          callback
+        );
       },
-      done
+      function(callback){
+        async.each(conts, function(cont, cb){
+          cont.record.populate('items', 'option title', cb);
+        },
+        callback
+        );
+      }
+    ], done
     );
   });
 
@@ -138,7 +152,7 @@ describe('Record CRUD:', function() {
       it('should process and return record when authorized'+ cont.id, function(done){
         auth(cont.credentials, function(err){
           if (err) done(err);
-          agent.post(urlPrefix).send(cont.record).expect(200).end(
+          agent.post(urlPrefix).send(cont.recordSend).expect(200).end(
             function(postErr, postRes){
               if (postErr) done(postErr);
               var record = postRes.body;
@@ -187,7 +201,6 @@ describe('Record CRUD:', function() {
         auth(cont.credentials, function () {
           agent.get(urlPrefix+'/'+cont.record._id).end(function(recordsGetErr, recordsGetRes) {
             if (recordsGetErr) done(recordsGetErr);
-//            should.not.exist(recordsGetErr, 'error getting record:'+cont.id);
             recordsGetRes.status.should.be.within(200, 399);
             var record = recordsGetRes.body;
             record.should.be.an.Object('incorrect record returned:'+cont.id)
@@ -218,9 +231,10 @@ describe('Record CRUD:', function() {
   describe('/records/:recordId(PUT) - modify own record', function() {
     conts.forEach(function (cont) {
       it('should return users record', function(done){
+        cont.recordSend.values.push('test');
         cont.record.values.push('test');
         auth(cont.credentials, function () {
-          agent.put(urlPrefix+'/'+cont.record._id).send(cont.record).expect(200)
+          agent.put(urlPrefix+'/'+cont.record._id).send(cont.recordSend).expect(200)
             .end(function(recordsGetErr, recordsGetRes) {
               if (recordsGetErr) done(recordsGetErr);
 //              recordsGetRes.status.should.be.within(200, 399);

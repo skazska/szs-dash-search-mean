@@ -1,5 +1,5 @@
 <div class="col-md-12">
-    <form id="records-form" class="form-horizontal" data-ng-submit="update()" novalidate>
+    <form id="records-form" class="form-horizontal" data-ng-submit="send()" >
         <fieldset>
             <div class="form-group">
                 <label class="control-label" for="actualUntil">Actual
@@ -10,28 +10,46 @@
                            class="form-control"
                            placeholder="Actual until date" >
                 </div>
-                <hr width="90%">
-                <label class="control-label" for="items">Items</label>
-                <div id="items" data-ng-init="getOptions()">
+                <div id="record-items" >
                     <div class="controls" data-ng-repeat="option in options | orderBy:'title'">
-                        <tags-input class="form-control" placeholder="Items"
-                                    aria-describedby="basic-addon1"
-                                    data-ng-model="options[option._id].items"
-                                    display-property="title">
-                            <auto-complete source="getOptItems(option)"></auto-complete>
-                        </tags-input>
+                        <label class="control-label"
+                               for="record-item-{{option._id}}">{{option.title}} items
+                        </label>
+                        <div class="controls" >
+                            <tags-input id = "record-item-{{option._id}}"
+                                        placeholder="Items"
+                                        aria-describedby="basic-addon1"
+                                        data-ng-model="items[option._id]"
+                                        display-property="title"
+                                        key-property="_id"
+                                        add-from-autocomplete-only="true">
+                                <auto-complete source="getOptItems(option)"></auto-complete>
+                            </tags-input>
+                        </div>
                     </div>
                 </div>
 
-                <label class="control-label" for="logo">Logo</label>
-                <div class="controls">
-                    <input type="url" data-ng-model="option.logo" id="logo" class="form-control" placeholder="url to image">
+                <label class="control-label" for="type">Type</label>
+                <div class="controls" data-ng-init="getTypes()">
+                    <select data-ng-model="record.type" id="type" required
+                            class="form-control"
+                            data-ng-disabled="record.type"
+                            ng-options="type._id as type.title for type in types ">
+                    </select>
                 </div>
 
-                <label class="control-label" for="description">Description</label>
-                <div class="controls">
-                    <textarea data-ng-model="option.description" id="description" class="form-control" placeholder="descriptive text"></textarea>
+                <label class="control-label" for="values">Values</label>
+                <div class="controls" id="values">
+                    <input type="text" class="form-control"
+                           data-ng-repeat="value in record.values track by $index"
+                           data-ng-model="record.values[$index]"/>
                 </div>
+                <a href="#" class="btn btn-primary"
+                   data-ng-click="editValue()">
+                    <!--data-ng-click="remove();"-->
+                    <i class="glyphicon glyphicon-plus"></i>
+                </a>
+
             </div>
             <div class="form-group">
                 <input type="submit" value="Update" class="btn btn-default">

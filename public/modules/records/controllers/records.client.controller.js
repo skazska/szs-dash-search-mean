@@ -19,6 +19,8 @@
  * - should request and return options in promise,
  * getOptItems(option):
  * - should request and return option items (authored) in promise,
+ * getTypes()
+ * - should set $scope.types (TO DO request types)
  * addOption(option):
  * -should push option into $scope.options
  * delOption(option):
@@ -44,25 +46,44 @@
 
 // Records controller
 angular.module('records').controller('RecordsController',
-  ['$scope', '$stateParams', '$state', 'Authentication', 'Records', 'Options', 'OptItems',
-	function($scope, $stateParams, $state, Authentication, Records, Options, OptItems) {
+  ['$scope', '$stateParams', '$state', '$q', 'Authentication', 'Records', 'Options', 'OptItems',
+	function($scope, $stateParams, $state, $q, Authentication, Records, Options, OptItems) {
 		$scope.authentication = Authentication;
 
     /**
     * init():
+    * - should call $scope.getOptions(),
     * - should record.GET if recordId is provided (through stateParams) and set $scope.record
     * - should redirect to list providing message, and skip its step from history on error response
     * - should initiate $scope.record if no recordId is provided (through stateParams)
-    * - should clear $scope`s data like: options and values arrays
-		*/
+    * - should clear $scope`s data like: items and values arrays if record not loaded
+    * - should set items distributing among options
+    */
 		$scope.init = function() {
+      //initiate options
+      $scope.getOptions();
+      //initiate items
+      var itemsDefer = $q.defer();
+      $scope.items = {};
+      $scope.options.$promise.then(function(options) {
+        angular.forEach($scope.options, function (option) {
+          $scope.items[option._id] = [];
+        });
+        itemsDefer.resolve($scope.items);
+      });
+      //initiate record
 			if ($stateParams.recordId){
         $scope.record = Records.get(
           {
             recordId: $stateParams.recordId
           },
           function (val, responseHeaders) {
-
+            //redistribute items to scope items
+            itemsDefer.promise.then(function(items){
+              angular.forEach(val.items, function(itm){
+                $scope.items[itm.option].push(itm);
+              });
+            });
           },
           function (httpResponse) {
             $state.go('record.list', {message: httpResponse.status+','+httpResponse.data});
@@ -70,17 +91,23 @@ angular.module('records').controller('RecordsController',
         );
       } else {
         $scope.record = new Records({items:[], values:[]});
+        $scope.values = [];
       }
-      $scope.items = [];
-      $scope.values = [];
 		};
 
     /**
     * send():
     * - should record.POST $scope.record data if it has no _id and redirect to view using _id from response
     * - should record.PUT $scope.record data if it has _id and redirect to view
+    * - should compose scope.items into scope.record.items
     */
     $scope.send = function() {
+      $scope.record.items = [];
+      angular.forEach($scope.items,(function(opt){
+        $scope.record.items = $scope.record.items.concat(
+          opt.map(function(item){return item._id})
+        );
+      }));
       if ($scope.record._id) {
         $scope.record.$update(function() {
           $state.go('record.one.view', {recordId: $scope.record._id});
@@ -145,6 +172,14 @@ angular.module('records').controller('RecordsController',
     };
 
     /**
+    * getTypes()
+    * - should set $scope.types (TO DO request types)
+    */
+    $scope.getTypes = function(){
+      $scope.types = [{_id:'tp1', title:'type 1'}, {_id:'tp2', title:'type 2'}];
+    };
+
+    /**
     * addOption(option):
     * -should push option into $scope.options
      */
@@ -155,9 +190,12 @@ angular.module('records').controller('RecordsController',
      */
 
     /**
-    * editValue():
+    * editValue(value):
     * - should set $scope.mode to 'editValue'
      */
+    $scope.editValue = function(value){
+      if (!value) $scope.record.values.push('');
+    };
 
     /**
     * setValue():
