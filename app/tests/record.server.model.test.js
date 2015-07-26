@@ -22,6 +22,7 @@ var user, option, optItem, record;
  * Record Schema
  * This schema represents the record, record is the main data being of project
  * It consists of:
+ * type - value type(schema)
  * actualUntil - a date of expiration
  * items - an Item reference list (Item is a classification atom,
  * represented by an Item Schema) list should contain at least (one) Item
@@ -90,7 +91,7 @@ describe('Record Model Unit Tests:', function() {
           rec.save(function (err) {
             should.exist(err);
             should(errorHandler.getErrorMessage(err)).match(/Please fill/);
-            should(errorHandler.getErrorMessage(err)).match(/items|values/);
+            should(errorHandler.getErrorMessage(err)).match(/item|value/);
             cb();
           });
         },
@@ -103,7 +104,8 @@ describe('Record Model Unit Tests:', function() {
 
     it('should save with some items and set actualUntil to now +30 days', function (done) {
       record.items = [optItem._id];
-      record.values = [];
+      record.values = ['val'];
+      record.type = 'tp1';
       var dt1 = new Date(Date.now() + 1000*60*60*24*30);
       record.save(function (err, data) {
         var dt2 = new Date(Date.now() + 1000*60*60*24*30);

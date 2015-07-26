@@ -30,6 +30,7 @@ module.exports = function(config) {
       output = _.union(output, config.getGlobbedFiles(config.assets.admin.modules.map(function(modName){
         return config.assets.admin.modulePrefix+modName+'/**/*.css';
       }), root));
+      console.log(output);
       return output;
     }
   };

@@ -1,0 +1,24 @@
+<div class="list-group" data-ng-init="list()">
+    <div class="pull-right" data-ng-show="((authentication.user))">
+        <a class="btn btn-primary" ui-sref="record.create({recordId: record._id})">
+            <i class="glyphicon glyphicon-plus"></i>
+        </a>
+    </div>
+    <div class="page-header" >
+        <h1>record list</h1>
+    </div>
+    <a data-ng-repeat="record in records" ui-sref="record.one.view({recordId: record._id})" class="list-group-item">
+        <small class="list-group-item-text">
+            Posted on
+            <span data-ng-bind="record.created | date:'medium'"></span>
+            by
+            <span data-ng-bind="record.user.displayName"></span>
+        </small>
+        <h4 class="list-group-item-heading" data-ng-bind="record._id"></h4>
+    </a>
+    <div class="alert alert-warning text-center" data-ng-hide="(!records.$resolved || records.length)">
+        No Records yet, why don&quot;t you <a ui-sref="record.one.create">create
+        one</a>?
+    </div>
+
+</div>
