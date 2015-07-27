@@ -2,6 +2,7 @@
 
 var should = require('should'),
 	request = require('supertest'),
+	async = require('async'),
 	app = require('../../server'),
 	mongoose = require('mongoose'),
 	User = mongoose.model('User'),
@@ -9,41 +10,148 @@ var should = require('should'),
 	agent = request.agent(app);
 
 /**
+ * Type Schema
+ * This schema represents type of record`s values, it should define view and edit
+ * templates representing value if front-end
+ * It consist of:
+ * _id - objectId, builtin, PK - technical identifier
+ * title - string, required - name of type
+ * viewInListTpl - string, required - name of template to represent value in list
+ * viewTpl - string, required - name of template to represent single value
+ * editTpl - string, required - name of template to edit single value
+ * modelValidator - string, - name of model validator function module
+ */
+
+/**
+ * Routes
+ * @param app
+ *
+ * /types
+ *  get - returns list
+ *  post - creates type and returns it
+ * /types/:typeId
+ *  get - returns type by _id
+ *  put - update type by _id
+ *  delete - removes type
+ */
+
+/**
+ * Scenario.
+ * =========
+ * CREATE: fires on /types POST type_data   uses types.create
+ * should require authentication
+ * should respond 400 "Please fill Type title" when POST with no or empty title
+ * should respond 400 "Please fill Type viewInListTpl" when POST with no or empty viewInListTpl
+ * should respond 400 "Please fill Type viewTpl" when POST with no or empty viewTpl
+ * should respond 400 "Please fill Type editTpl" when POST with no or empty editTpl
+ * should respond type_data with _id property being set
+ * READ LIST:  fires on /types/GET uses types.list
+ * should respond with JSON array containing inserted type data objects
+ * UPDATE:  fires on /types/:typeId PUT type_data  uses types.update
+ * should require authentication
+ * should respond 404 when wrong typeIt are given
+ * should respond 400 "Please fill Type title" when POST with no or empty title
+ * should respond 400 "Please fill Type viewInListTpl" when POST with no or empty viewInListTpl
+ * should respond 400 "Please fill Type viewTpl" when POST with no or empty viewTpl
+ * should respond 400 "Please fill Type editTpl" when POST with no or empty editTpl
+ * should respond type_data had been PUT
+ * READ: fires on /types/:typeId GET  uses types.read
+ * should respond with type_data have been PUT
+ * DELETE: fires on /types/:typeId DELETE  uses types.delete
+ * should respond 404 when wrong typeIt are given
+ * /types/:typeId GET should respond 404 after DELETE with :typeId
+ */
+
+/**
  * Globals
  */
-var credentials, user, type;
+var urlPrefix = '/search-api/types';
+//credentials, user, type;
+function auth(user, next){
+	var credentials = {username: user.username, password: user.password};
+	//authenticating
+	agent.post('/auth/signin')
+		.send(credentials)
+		.expect(200)
+		.end(function(signinErr, signinRes) {
+			if (signinErr) next(signinErr);
+			next();
+		});
+}
+
 
 /**
  * Type routes tests
  */
 describe('Type CRUD tests', function() {
-	beforeEach(function(done) {
-		// Create user credentials
-		credentials = {
-			username: 'username',
-			password: 'password'
-		};
 
-		// Create a new user
-		user = new User({
-			firstName: 'Full',
-			lastName: 'Name',
-			displayName: 'Full Name',
-			email: 'test@test.com',
-			username: credentials.username,
-			password: credentials.password,
-			provider: 'local'
-		});
+	var tests = {
+		scenario1:{
+			user: new User({
+				firstName: 'Full',
+				lastName: 'Name',
+				displayName: 'Full Name',
+				email: 'test@test.com',
+				username: 'username',
+				password: 'password',
+				provider: 'local'
+			}),
+			postData: {
+				title : 'Title',
+				viewInListTpl : 'ListTpl',
+				viewTpl : 'ViewTpl',
+				editTpl : 'EditTpl',
+				modelValidator : 'ModelValidator'
+			}
+		}
+	};
 
-		// Save a user to the test db and create new Type
-		user.save(function() {
-			type = {
-				name: 'Type Name'
-			};
-
-			done();
-		});
+	//prepare dependencies
+	before(function(done){
+		async.eachSeries(tests, function(test, callback){
+			test.user.save(callback);
+		}, done);
 	});
+
+	beforeEach(function(done) {
+	});
+
+	after(function(done){
+		Type.remove();
+		User.remove();
+		done();
+	});
+
+	describe('/types(POST) - create', function(){
+		tests.forEach(function(test, testId){
+			it('should require authentication:'+testId,function(done){
+				agent.post(urlPrefix).send(test.postData).expect(403, done);
+			});
+			it('should respond 400 "Please fill Type title" when POST with no or empty title:'+testId,function(done){
+				auth(test.user, function (authErr) {
+					if (authErr) done(authErr);
+					agent.post(urlPrefix).send(test.postData).expect(400)
+				});
+			});
+			it('should respond 400 "Please fill Type viewInListTpl" when POST with no or empty viewInListTpl:'+testId,function(done){});
+			it('should respond 400 "Please fill Type viewTpl" when POST with no or empty viewTpl:'+testId,function(done){});
+			it('should respond 400 "Please fill Type editTpl" when POST with no or empty editTpl:'+testId,function(done){});
+			it('should respond type_data with _id property being set',function(done){
+				auth(test.user, function (authErr) {
+					if (authErr) done(authErr);
+					agent.post(urlPrefix).send(test.postData).end(function (httpErr, httpRes) {
+						if (httpErr) done(httpErr);
+						var type = httpRes.body;
+						type.should.be.an.Object('incorrect record returned:'+cont.id).with.properties(['_id']);
+						type.should.containEql(test.postData);
+						done();
+					})
+				});
+
+			});
+		})
+	});
+
 
 	it('should be able to save Type instance if logged in', function(done) {
 		agent.post('/auth/signin')

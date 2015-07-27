@@ -128,11 +128,11 @@ describe('Type Model Unit Tests:', function() {
 				Type.findById(data._id, function(err, types) {
 					types.should.containEql({
 						title : 'Title',
-							viewInListTpl : 'ListTpl',
-							viewTpl : 'ViewTpl',
-							editTpl : 'EditTpl',
-							modelValidator : 'ModelValidator',
-							user: user
+						viewInListTpl : 'ListTpl',
+						viewTpl : 'ViewTpl',
+						editTpl : 'EditTpl',
+						modelValidator : 'ModelValidator',
+						user: user
 					});
 					done();
 				});

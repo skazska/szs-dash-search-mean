@@ -1,5 +1,17 @@
 'use strict';
 
+/**
+ * Routes
+ * @param app
+ *
+ * /types
+ *  get - returns list
+ *  post - creates type and returns it
+ * /types/:typeId
+ *  get - returns type by _id
+ *  put - update type by _id
+ *  delete - removes type
+ */
 module.exports = function(app) {
 	var users = require('../../app/controllers/users.server.controller');
 	var types = require('../../app/controllers/types.server.controller');
