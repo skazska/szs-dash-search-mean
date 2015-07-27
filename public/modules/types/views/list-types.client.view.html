@@ -1,0 +1,19 @@
+<section data-ng-controller="TypesController" data-ng-init="find()">
+    <div class="page-header">
+        <h1>Types</h1>
+    </div>
+    <div class="list-group">
+        <a data-ng-repeat="type in types" data-ng-href="#!/types/{{type._id}}" class="list-group-item">
+			<small class="list-group-item-text">
+				Posted on
+				<span data-ng-bind="type.created | date:'medium'"></span>
+				by
+				<span data-ng-bind="type.user.displayName"></span>
+			</small>
+			<h4 class="list-group-item-heading" data-ng-bind="type.name"></h4>
+        </a>
+    </div>
+    <div class="alert alert-warning text-center" data-ng-hide="!types.$resolved || types.length">
+    	No Types yet, why don't you <a href="/#!/types/create">create one</a>?
+    </div>
+</section>

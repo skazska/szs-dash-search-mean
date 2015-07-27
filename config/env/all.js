@@ -59,7 +59,8 @@ module.exports = {
       modules:[
         'options',
         'opt-items',
-        'records'
+        'records',
+				'types'
       ]
     }
 	}
