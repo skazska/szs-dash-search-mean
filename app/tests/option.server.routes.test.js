@@ -208,7 +208,8 @@ describe('Option CRUD tests', function() {
 		// Save the Option
 		optionObj.save(function() {
 			request(app).get(urlPrefix+'/options/' + optionObj._id)
-				.end(function(req, res) {
+				.end(function(err, res) {
+					if (err) return done(err);
 					// Set assertion
 					res.body.should.be.an.Object().with.property('title', option.title);
 

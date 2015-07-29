@@ -40,6 +40,7 @@ var should = require('should'),
  * =========
  * CREATE: fires on /types POST type_data   uses types.create
  * should require authentication
+ * should respond 400 "???" if data contains _id
  * should respond 400 "Please fill Type title" when POST with no or empty title
  * should respond 400 "Please fill Type viewInListTpl" when POST with no or empty viewInListTpl
  * should respond 400 "Please fill Type viewTpl" when POST with no or empty viewTpl
@@ -50,6 +51,7 @@ var should = require('should'),
  * UPDATE:  fires on /types/:typeId PUT type_data  uses types.update
  * should require authentication
  * should respond 404 when wrong typeIt are given
+ * should respond 400 "resource id does not match object id" if data contains _id and it not match :typeId
  * should respond 400 "Please fill Type title" when POST with no or empty title
  * should respond 400 "Please fill Type viewInListTpl" when POST with no or empty viewInListTpl
  * should respond 400 "Please fill Type viewTpl" when POST with no or empty viewTpl
@@ -58,6 +60,7 @@ var should = require('should'),
  * READ: fires on /types/:typeId GET  uses types.read
  * should respond with type_data have been PUT
  * DELETE: fires on /types/:typeId DELETE  uses types.delete
+ * should require authorization
  * should respond 404 when wrong typeIt are given
  * /types/:typeId GET should respond 404 after DELETE with :typeId
  */
@@ -85,8 +88,9 @@ function auth(user, next){
  */
 describe('Type CRUD tests', function() {
 
-	var tests = {
-		scenario1:{
+	var tests = [
+		{
+			id: 'scenario1',
 			user: new User({
 				firstName: 'Full',
 				lastName: 'Name',
@@ -104,7 +108,7 @@ describe('Type CRUD tests', function() {
 				modelValidator : 'ModelValidator'
 			}
 		}
-	};
+	];
 
 	//prepare dependencies
 	before(function(done){
@@ -123,248 +127,143 @@ describe('Type CRUD tests', function() {
 	});
 
 	describe('/types(POST) - create', function(){
-		tests.forEach(function(test, testId){
+		tests.forEach(function(test){
+			var testId = test.id;
 			it('should require authentication:'+testId,function(done){
 				agent.post(urlPrefix).send(test.postData).expect(403, done);
 			});
-			it('should respond 400 "Please fill Type title" when POST with no or empty title:'+testId,function(done){
+			it('should respond 400 "???" if data contains _id:'+testId,function(done){
 				auth(test.user, function (authErr) {
 					if (authErr) done(authErr);
-					agent.post(urlPrefix).send(test.postData).expect(400)
+					var data = test.postData;
+					data._id= '345234FFA2345234FFA2345234FFA2A3';
+					agent.post(urlPrefix).send(data).expect(400, done);
 				});
 			});
-			it('should respond 400 "Please fill Type viewInListTpl" when POST with no or empty viewInListTpl:'+testId,function(done){});
-			it('should respond 400 "Please fill Type viewTpl" when POST with no or empty viewTpl:'+testId,function(done){});
-			it('should respond 400 "Please fill Type editTpl" when POST with no or empty editTpl:'+testId,function(done){});
+			async.each(['title, viewInListTpl', 'viewTpl', 'editTpl'],function(field){
+				it('should respond 400 "Please fill Type title" when POST with no or empty '+field+':'+testId,function(done){
+					auth(test.user, function (authErr) {
+						if (authErr) done(authErr);
+						var data = test.postData;
+						data[field] = '';
+						agent.post(urlPrefix).send(data).expect(400, done);
+					});
+				});
+			});
 			it('should respond type_data with _id property being set',function(done){
 				auth(test.user, function (authErr) {
 					if (authErr) done(authErr);
 					agent.post(urlPrefix).send(test.postData).end(function (httpErr, httpRes) {
 						if (httpErr) done(httpErr);
-						var type = httpRes.body;
-						type.should.be.an.Object('incorrect record returned:'+cont.id).with.properties(['_id']);
-						type.should.containEql(test.postData);
+						test.type = httpRes.body;
+//						var type = httpRes.body;
+						test.type.should.be.an.Object('incorrect record returned:'+cont.id).with.properties(['_id']);
+						test.type.should.containEql(test.postData);
 						done();
 					})
 				});
-
 			});
 		})
 	});
 
-
-	it('should be able to save Type instance if logged in', function(done) {
-		agent.post('/auth/signin')
-			.send(credentials)
-			.expect(200)
-			.end(function(signinErr, signinRes) {
-				// Handle signin error
-				if (signinErr) done(signinErr);
-
-				// Get the userId
-				var userId = user.id;
-
-				// Save a new Type
-				agent.post('/types')
-					.send(type)
-					.expect(200)
-					.end(function(typeSaveErr, typeSaveRes) {
-						// Handle Type save error
-						if (typeSaveErr) done(typeSaveErr);
-
-						// Get a list of Types
-						agent.get('/types')
-							.end(function(typesGetErr, typesGetRes) {
-								// Handle Type save error
-								if (typesGetErr) done(typesGetErr);
-
-								// Get Types list
-								var types = typesGetRes.body;
-
-								// Set assertions
-								(types[0].user._id).should.equal(userId);
-								(types[0].name).should.match('Type Name');
-
-								// Call the assertion callback
-								done();
-							});
+	describe('READ LIST:  fires on /types/GET uses types.list', function(){
+		tests.forEach(function(test) {
+			var testId = test.id;
+			it('should respond with JSON array containing inserted type data objects: '+testId, function (done) {
+				agent.get('urlPrefix').end(function (err, res) {
+					if (err) return done(err);
+					res.body.should.be.an.Array();
+					res.body.should.containEql({
+						_id: test.type._id,
+						title: test.type.title
 					});
-			});
-	});
-
-	it('should not be able to save Type instance if not logged in', function(done) {
-		agent.post('/types')
-			.send(type)
-			.expect(401)
-			.end(function(typeSaveErr, typeSaveRes) {
-				// Call the assertion callback
-				done(typeSaveErr);
-			});
-	});
-
-	it('should not be able to save Type instance if no name is provided', function(done) {
-		// Invalidate name field
-		type.name = '';
-
-		agent.post('/auth/signin')
-			.send(credentials)
-			.expect(200)
-			.end(function(signinErr, signinRes) {
-				// Handle signin error
-				if (signinErr) done(signinErr);
-
-				// Get the userId
-				var userId = user.id;
-
-				// Save a new Type
-				agent.post('/types')
-					.send(type)
-					.expect(400)
-					.end(function(typeSaveErr, typeSaveRes) {
-						// Set message assertion
-						(typeSaveRes.body.message).should.match('Please fill Type name');
-						
-						// Handle Type save error
-						done(typeSaveErr);
-					});
-			});
-	});
-
-	it('should be able to update Type instance if signed in', function(done) {
-		agent.post('/auth/signin')
-			.send(credentials)
-			.expect(200)
-			.end(function(signinErr, signinRes) {
-				// Handle signin error
-				if (signinErr) done(signinErr);
-
-				// Get the userId
-				var userId = user.id;
-
-				// Save a new Type
-				agent.post('/types')
-					.send(type)
-					.expect(200)
-					.end(function(typeSaveErr, typeSaveRes) {
-						// Handle Type save error
-						if (typeSaveErr) done(typeSaveErr);
-
-						// Update Type name
-						type.name = 'WHY YOU GOTTA BE SO MEAN?';
-
-						// Update existing Type
-						agent.put('/types/' + typeSaveRes.body._id)
-							.send(type)
-							.expect(200)
-							.end(function(typeUpdateErr, typeUpdateRes) {
-								// Handle Type update error
-								if (typeUpdateErr) done(typeUpdateErr);
-
-								// Set assertions
-								(typeUpdateRes.body._id).should.equal(typeSaveRes.body._id);
-								(typeUpdateRes.body.name).should.match('WHY YOU GOTTA BE SO MEAN?');
-
-								// Call the assertion callback
-								done();
-							});
-					});
-			});
-	});
-
-	it('should be able to get a list of Types if not signed in', function(done) {
-		// Create new Type model instance
-		var typeObj = new Type(type);
-
-		// Save the Type
-		typeObj.save(function() {
-			// Request Types
-			request(app).get('/types')
-				.end(function(req, res) {
-					// Set assertion
-					res.body.should.be.an.Array.with.lengthOf(1);
-
-					// Call the assertion callback
 					done();
 				});
-
+			});
 		});
 	});
 
-
-	it('should be able to get a single Type if not signed in', function(done) {
-		// Create new Type model instance
-		var typeObj = new Type(type);
-
-		// Save the Type
-		typeObj.save(function() {
-			request(app).get('/types/' + typeObj._id)
-				.end(function(req, res) {
-					// Set assertion
-					res.body.should.be.an.Object.with.property('name', type.name);
-
-					// Call the assertion callback
-					done();
+	describe('UPDATE:  fires on /types/:typeId PUT type_data  uses types.update', function(){
+		tests.forEach(function(test){
+			var testId = test.id;
+			it('should require authentication:'+testId,function(done){
+				agent.put(urlPrefix+'/'+data._id).send(data).expect(403, done);
+			});
+			it('should respond 404 when wrong typeIt are given: '+testId, function(){
+				auth(test.user, function (authErr) {
+					if (authErr) done(authErr);
+					var data = test.postData;
+					data._id= '345234FFA2345234FFA2345234FFA2A3';
+					agent.put(urlPrefix+'/'+data._id).send(data).expect(400, done);
 				});
+			});
+			it('should respond 400 "resource id does not match object id" if data contains _id and it not match :typeId: '+testId, function(){
+				auth(test.user, function (authErr) {
+					if (authErr) done(authErr);
+					var data = test.postData;
+					data._id= '345234FFA2345234FFA2345234FFA2A3';
+					agent.put(urlPrefix+'/'+test.type._id).send(test.type).expect(400, done);
+				});
+			});
+			async.each(['title, viewInListTpl', 'viewTpl', 'editTpl'],function(field){
+				it('should respond 400 "Please fill Type title" when POST with no or empty '+field+':'+testId,function(done){
+					var data = test.postData;
+					auth(test.user, function (authErr) {
+						if (authErr) done(authErr);
+						data[field] = '';
+						agent.put(urlPrefix).send(data).expect(400, done);
+					});
+				});
+			});
+			it('should respond type_data being PUT',function(done){
+				auth(test.user, function (authErr) {
+					if (authErr) done(authErr);
+					test.type.title = 'UPDATED';
+					agent.put(urlPrefix+'/'+data._id).send(test.type).end(function (httpErr, httpRes) {
+						if (httpErr) done(httpErr);
+						test.type = httpRes.body;
+//						var type = httpRes.body;
+						test.type.should.be.an.Object('incorrect record returned:'+cont.id).with.properties(['_id']);
+						test.type.should.containEql(test.type);
+						done();
+					})
+				});
+			});
+		})
+	});
+
+	describe('READ: fires on /types/:typeId GET  uses types.read', function(){
+		tests.forEach(function(test) {
+			var testId = test.id;
+			it('should respond with type_data had been PUT: '+testId, function (done) {
+				agent.get(urlPrefix + '/' + test.type._id).end(function (err, res) {
+					if (err) return done(err);
+					res.body.should.containEql(test.type);
+				});
+			});
 		});
 	});
-
-	it('should be able to delete Type instance if signed in', function(done) {
-		agent.post('/auth/signin')
-			.send(credentials)
-			.expect(200)
-			.end(function(signinErr, signinRes) {
-				// Handle signin error
-				if (signinErr) done(signinErr);
-
-				// Get the userId
-				var userId = user.id;
-
-				// Save a new Type
-				agent.post('/types')
-					.send(type)
-					.expect(200)
-					.end(function(typeSaveErr, typeSaveRes) {
-						// Handle Type save error
-						if (typeSaveErr) done(typeSaveErr);
-
-						// Delete existing Type
-						agent.delete('/types/' + typeSaveRes.body._id)
-							.send(type)
-							.expect(200)
-							.end(function(typeDeleteErr, typeDeleteRes) {
-								// Handle Type error error
-								if (typeDeleteErr) done(typeDeleteErr);
-
-								// Set assertions
-								(typeDeleteRes.body._id).should.equal(typeSaveRes.body._id);
-
-								// Call the assertion callback
-								done();
-							});
+	describe('DELETE: fires on /types/:typeId DELETE  uses types.delete', function(){
+		tests.forEach(function(test) {
+			var testId = test.id;
+			it('should require authorization', function (done) {
+				agent.delete(urlPrefix + '/' + test.type._id).expect(403, done);
+			});
+			it('should respond 404 when wrong typeId are given', function (done) {
+				auth(test.user, function (authErr) {
+					if (authErr) done(authErr);
+					agent.delete(urlPrefix + '/345234FFA2345234FFA2345234FFA2A3').expect(404, done);
+				});
+			});
+			it('/types/:typeId GET should respond 404 after DELETE with :typeId', function (done) {
+				auth(test.user, function (authErr) {
+					if (authErr) done(authErr);
+					agent.delete(urlPrefix + '/' + data._id).expect(200).end(function (err, res) {
+						if (err) return done(err);
+						agent.get(urlPrefix + '/' + test.type._id).expect(404, done);
 					});
+				});
 			});
-	});
-
-	it('should not be able to delete Type instance if not signed in', function(done) {
-		// Set Type user 
-		type.user = user;
-
-		// Create new Type model instance
-		var typeObj = new Type(type);
-
-		// Save the Type
-		typeObj.save(function() {
-			// Try deleting Type
-			request(app).delete('/types/' + typeObj._id)
-			.expect(401)
-			.end(function(typeDeleteErr, typeDeleteRes) {
-				// Set message assertion
-				(typeDeleteRes.body.message).should.match('User is not logged in');
-
-				// Handle Type error error
-				done(typeDeleteErr);
-			});
-
 		});
 	});
 
