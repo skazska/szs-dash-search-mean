@@ -70,14 +70,13 @@ var should = require('should'),
  */
 var urlPrefix = '/search-api/types';
 //credentials, user, type;
-function auth(user, next){
-	var credentials = {username: user.username, password: user.password};
+function auth(credentials, next){
 	//authenticating
 	agent.post('/auth/signin')
 		.send(credentials)
 		.expect(200)
 		.end(function(signinErr, signinRes) {
-			if (signinErr) next(signinErr);
+				if (signinErr) return next(signinErr);
 			next();
 		});
 }
@@ -91,6 +90,10 @@ describe('Type CRUD tests', function() {
 	var tests = [
 		{
 			id: 'scenario1',
+			credentials:{
+				username: 'username',
+				password: 'password'
+			},
 			user: new User({
 				firstName: 'Full',
 				lastName: 'Name',
@@ -117,8 +120,9 @@ describe('Type CRUD tests', function() {
 		}, done);
 	});
 
-	beforeEach(function(done) {
-	});
+//	beforeEach(function(done) {
+//		done();
+//	});
 
 	after(function(done){
 		Type.remove();
@@ -130,11 +134,12 @@ describe('Type CRUD tests', function() {
 		tests.forEach(function(test){
 			var testId = test.id;
 			it('should require authentication:'+testId,function(done){
-				agent.post(urlPrefix).send(test.postData).expect(403, done);
+				agent.post(urlPrefix).send(test.postData).expect(401, done);
 			});
 			it('should respond 400 "???" if data contains _id:'+testId,function(done){
-				auth(test.user, function (authErr) {
-					if (authErr) done(authErr);
+				auth(test.credentials, function (authErr) {
+
+					if (authErr) return done(authErr);
 					var data = test.postData;
 					data._id= '345234FFA2345234FFA2345234FFA2A3';
 					agent.post(urlPrefix).send(data).expect(400, done);
@@ -142,8 +147,8 @@ describe('Type CRUD tests', function() {
 			});
 			async.each(['title, viewInListTpl', 'viewTpl', 'editTpl'],function(field){
 				it('should respond 400 "Please fill Type title" when POST with no or empty '+field+':'+testId,function(done){
-					auth(test.user, function (authErr) {
-						if (authErr) done(authErr);
+					auth(test.credentials, function (authErr) {
+						if (authErr) return done(authErr);
 						var data = test.postData;
 						data[field] = '';
 						agent.post(urlPrefix).send(data).expect(400, done);
@@ -151,13 +156,13 @@ describe('Type CRUD tests', function() {
 				});
 			});
 			it('should respond type_data with _id property being set',function(done){
-				auth(test.user, function (authErr) {
-					if (authErr) done(authErr);
-					agent.post(urlPrefix).send(test.postData).end(function (httpErr, httpRes) {
+				auth(test.credentials, function (authErr) {
+					if (authErr) return done(authErr);
+					agent.post(urlPrefix).send(test.postData).expect(200).end(function (httpErr, httpRes) {
 						if (httpErr) done(httpErr);
 						test.type = httpRes.body;
 //						var type = httpRes.body;
-						test.type.should.be.an.Object('incorrect record returned:'+cont.id).with.properties(['_id']);
+						test.type.should.be.an.Object('incorrect record returned:'+test.id).with.properties(['_id']);
 						test.type.should.containEql(test.postData);
 						done();
 					})
@@ -170,7 +175,7 @@ describe('Type CRUD tests', function() {
 		tests.forEach(function(test) {
 			var testId = test.id;
 			it('should respond with JSON array containing inserted type data objects: '+testId, function (done) {
-				agent.get('urlPrefix').end(function (err, res) {
+				agent.get(urlPrefix).end(function (err, res) {
 					if (err) return done(err);
 					res.body.should.be.an.Array();
 					res.body.should.containEql({
@@ -187,18 +192,18 @@ describe('Type CRUD tests', function() {
 		tests.forEach(function(test){
 			var testId = test.id;
 			it('should require authentication:'+testId,function(done){
-				agent.put(urlPrefix+'/'+data._id).send(data).expect(403, done);
+				agent.put(urlPrefix+'/'+data._id).send(data).expect(401, done);
 			});
 			it('should respond 404 when wrong typeIt are given: '+testId, function(){
-				auth(test.user, function (authErr) {
-					if (authErr) done(authErr);
+				auth(test.credentials, function (authErr) {
+					if (authErr) return done(authErr);
 					var data = test.postData;
 					data._id= '345234FFA2345234FFA2345234FFA2A3';
 					agent.put(urlPrefix+'/'+data._id).send(data).expect(400, done);
 				});
 			});
 			it('should respond 400 "resource id does not match object id" if data contains _id and it not match :typeId: '+testId, function(){
-				auth(test.user, function (authErr) {
+				auth(test.credentials, function (authErr) {
 					if (authErr) done(authErr);
 					var data = test.postData;
 					data._id= '345234FFA2345234FFA2345234FFA2A3';
@@ -208,22 +213,22 @@ describe('Type CRUD tests', function() {
 			async.each(['title, viewInListTpl', 'viewTpl', 'editTpl'],function(field){
 				it('should respond 400 "Please fill Type title" when POST with no or empty '+field+':'+testId,function(done){
 					var data = test.postData;
-					auth(test.user, function (authErr) {
-						if (authErr) done(authErr);
+					auth(test.credentials, function (authErr) {
+						if (authErr) return done(authErr);
 						data[field] = '';
 						agent.put(urlPrefix).send(data).expect(400, done);
 					});
 				});
 			});
 			it('should respond type_data being PUT',function(done){
-				auth(test.user, function (authErr) {
+				auth(test.credentials, function (authErr) {
 					if (authErr) done(authErr);
 					test.type.title = 'UPDATED';
 					agent.put(urlPrefix+'/'+data._id).send(test.type).end(function (httpErr, httpRes) {
-						if (httpErr) done(httpErr);
+						if (httpErr) return done(httpErr);
 						test.type = httpRes.body;
 //						var type = httpRes.body;
-						test.type.should.be.an.Object('incorrect record returned:'+cont.id).with.properties(['_id']);
+						test.type.should.be.an.Object('incorrect record returned:'+test.id).with.properties(['_id']);
 						test.type.should.containEql(test.type);
 						done();
 					})
@@ -247,17 +252,17 @@ describe('Type CRUD tests', function() {
 		tests.forEach(function(test) {
 			var testId = test.id;
 			it('should require authorization', function (done) {
-				agent.delete(urlPrefix + '/' + test.type._id).expect(403, done);
+				agent.delete(urlPrefix + '/' + test.type._id).expect(401, done);
 			});
 			it('should respond 404 when wrong typeId are given', function (done) {
-				auth(test.user, function (authErr) {
-					if (authErr) done(authErr);
+				auth(test.credentials, function (authErr) {
+					if (authErr) return done(authErr);
 					agent.delete(urlPrefix + '/345234FFA2345234FFA2345234FFA2A3').expect(404, done);
 				});
 			});
 			it('/types/:typeId GET should respond 404 after DELETE with :typeId', function (done) {
-				auth(test.user, function (authErr) {
-					if (authErr) done(authErr);
+				auth(test.credentials, function (authErr) {
+					if (authErr) return done(authErr);
 					agent.delete(urlPrefix + '/' + data._id).expect(200).end(function (err, res) {
 						if (err) return done(err);
 						agent.get(urlPrefix + '/' + test.type._id).expect(404, done);
@@ -267,9 +272,9 @@ describe('Type CRUD tests', function() {
 		});
 	});
 
-	afterEach(function(done) {
-		User.remove().exec();
-		Type.remove().exec();
-		done();
-	});
+//	afterEach(function(done) {
+//		User.remove().exec();
+//		Type.remove().exec();
+//		done();
+//	});
 });

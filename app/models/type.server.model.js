@@ -52,7 +52,7 @@ var TypeSchema = new Schema({
 		default: Date.now
 	},
 	user: {
-		type: Schema.ObjectId,
+		type: Schema.Types.ObjectId,
 		ref: 'User'
 	}
 });

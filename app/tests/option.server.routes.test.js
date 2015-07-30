@@ -68,7 +68,7 @@ describe('Option CRUD tests', function() {
 			.expect(200)
 			.end(function(signinErr, signinRes) {
 				// Handle signin error
-				if (signinErr) done(signinErr);
+				if (signinErr) return done(signinErr);
 
 				// Get the userId
 				var userId = user.id;
@@ -79,13 +79,13 @@ describe('Option CRUD tests', function() {
 					.expect(200)
 					.end(function(optionSaveErr, optionSaveRes) {
 						// Handle Option save error
-						if (optionSaveErr) done(optionSaveErr);
+						if (optionSaveErr) return done(optionSaveErr);
 
 						// Get a list of Options
 						agent.get(urlPrefix+'/options')
 							.end(function(optionsGetErr, optionsGetRes) {
 								// Handle Option save error
-								if (optionsGetErr) done(optionsGetErr);
+								if (optionsGetErr) return done(optionsGetErr);
 
 								// Get Options list
 								var options = optionsGetRes.body;
@@ -120,7 +120,7 @@ describe('Option CRUD tests', function() {
 			.expect(200)
 			.end(function(signinErr, signinRes) {
 				// Handle signin error
-				if (signinErr) done(signinErr);
+				if (signinErr) return done(signinErr);
 
 				// Get the userId
 				var userId = user.id;
@@ -146,7 +146,7 @@ describe('Option CRUD tests', function() {
 			.expect(200)
 			.end(function(signinErr, signinRes) {
 				// Handle signin error
-				if (signinErr) done(signinErr);
+				if (signinErr) return done(signinErr);
 
 				// Get the userId
 				var userId = user.id;
@@ -157,7 +157,7 @@ describe('Option CRUD tests', function() {
 					.expect(200)
 					.end(function(optionSaveErr, optionSaveRes) {
 						// Handle Option save error
-						if (optionSaveErr) done(optionSaveErr);
+						if (optionSaveErr) return done(optionSaveErr);
 
 						// Update Option name
 						option.title = 'WHY YOU GOTTA BE SO MEAN?';
@@ -168,7 +168,7 @@ describe('Option CRUD tests', function() {
 							.expect(200)
 							.end(function(optionUpdateErr, optionUpdateRes) {
 								// Handle Option update error
-								if (optionUpdateErr) done(optionUpdateErr);
+								if (optionUpdateErr) return done(optionUpdateErr);
 
 								// Set assertions
 								(optionUpdateRes.body._id).should.equal(optionSaveRes.body._id);
@@ -225,7 +225,7 @@ describe('Option CRUD tests', function() {
 			.expect(200)
 			.end(function(signinErr, signinRes) {
 				// Handle signin error
-				if (signinErr) done(signinErr);
+				if (signinErr) return done(signinErr);
 
 				// Get the userId
 				var userId = user.id;
@@ -236,7 +236,7 @@ describe('Option CRUD tests', function() {
 					.expect(200)
 					.end(function(optionSaveErr, optionSaveRes) {
 						// Handle Option save error
-						if (optionSaveErr) done(optionSaveErr);
+						if (optionSaveErr) return done(optionSaveErr);
 
 						// Delete existing Option
 						agent.delete(urlPrefix+'/options/' + optionSaveRes.body._id)
@@ -244,7 +244,7 @@ describe('Option CRUD tests', function() {
 							.expect(200)
 							.end(function(optionDeleteErr, optionDeleteRes) {
 								// Handle Option error error
-								if (optionDeleteErr) done(optionDeleteErr);
+								if (optionDeleteErr) return done(optionDeleteErr);
 
 								// Set assertions
 								(optionDeleteRes.body._id).should.equal(optionSaveRes.body._id);

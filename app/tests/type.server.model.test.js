@@ -37,7 +37,8 @@ describe('Type Model Unit Tests:', function() {
 			displayName: 'Full Name',
 			email: 'test@test.com',
 			username: 'username',
-			password: 'password'
+			password: 'password',
+			provider: 'local'
 		});
 
 		type = new Type({
@@ -49,8 +50,8 @@ describe('Type Model Unit Tests:', function() {
 			user: user
 		});
 
-		user.save(function() {
-			done();
+		user.save(function(err) {
+			done(err);
 		});
 	});
 
@@ -61,22 +62,8 @@ describe('Type Model Unit Tests:', function() {
 				done();
 			});
 		});
-		it('should be able to show an error when try to save without title', function(done) {
-			delete(type.title);
-			return type.save(function(err) {
-				should.exist(err);
-				done();
-			});
-		});
 		it('should be able to show an error when try to save with empty title', function(done) {
-			type.id.title = '';
-			return type.save(function(err) {
-				should.exist(err);
-				done();
-			});
-		});
-		it('should be able to show an error when try to save without viewInListTpl', function(done) {
-			delete(type.viewInListTpl);
+			type.title = '';
 			return type.save(function(err) {
 				should.exist(err);
 				done();
@@ -89,22 +76,8 @@ describe('Type Model Unit Tests:', function() {
 				done();
 			});
 		});
-		it('should be able to show an error when try to save without viewTpl', function(done) {
-			delete(type.viewTpl);
-			return type.save(function(err) {
-				should.exist(err);
-				done();
-			});
-		});
 		it('should be able to show an error when try to save with empty viewTpl', function(done) {
 			type.viewTpl = '';
-			return type.save(function(err) {
-				should.exist(err);
-				done();
-			});
-		});
-		it('should be able to show an error when try to save without editTpl', function(done) {
-			delete(type.editTpl);
 			return type.save(function(err) {
 				should.exist(err);
 				done();
@@ -119,20 +92,17 @@ describe('Type Model Unit Tests:', function() {
 		});
 
 		it('should save all fields as is', function(done) {
-			type.id = 'opt';
-			type.title = 'title';
-			type.description = 'description';
-			type.logo = 'logo';
 			return type.save(function(err, data) {
 				should.not.exist(err);
 				Type.findById(data._id, function(err, types) {
+					if (err) return done(err);
 					types.should.containEql({
 						title : 'Title',
 						viewInListTpl : 'ListTpl',
 						viewTpl : 'ViewTpl',
 						editTpl : 'EditTpl',
 						modelValidator : 'ModelValidator',
-						user: user
+						user: user._id
 					});
 					done();
 				});

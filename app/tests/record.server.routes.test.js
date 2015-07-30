@@ -139,7 +139,7 @@ describe('Record CRUD:', function() {
       .expect(200)
       .end(function(signinErr, signinRes) {
         // Handle signin error
-      if (signinErr) next(signinErr);
+      if (signinErr) return next(signinErr);
 //        should.not.exist(signinErr, 'error authenticating ' +
 // credentials.username);
         next();
@@ -151,10 +151,10 @@ describe('Record CRUD:', function() {
     conts.forEach(function(cont, i){
       it('should process and return record when authorized'+ cont.id, function(done){
         auth(cont.credentials, function(err){
-          if (err) done(err);
+          if (err) return done(err);
           agent.post(urlPrefix).send(cont.recordSend).expect(200).end(
             function(postErr, postRes){
-              if (postErr) done(postErr);
+              if (postErr) return done(postErr);
               var record = postRes.body;
               record.should.be.Object().with.properties(['user', '_id']);
               record.user.should.be.eql(cont.user._id.toString());
@@ -176,7 +176,7 @@ describe('Record CRUD:', function() {
       it('should return list ot user`s records', function(done){
         auth(cont.credentials, function(){
           agent.get(urlPrefix).end(function(recordsGetErr, recordsGetRes) {
-            if (recordsGetErr) done(recordsGetErr);
+            if (recordsGetErr) return done(recordsGetErr);
 //            should.not.exist(recordsGetErr, 'error getting records:'+cont.id);
             recordsGetRes.status.should.be.within(200, 399);
             var records = recordsGetRes.body;
@@ -200,7 +200,7 @@ describe('Record CRUD:', function() {
       it('should return users record', function(done){
         auth(cont.credentials, function () {
           agent.get(urlPrefix+'/'+cont.record._id).end(function(recordsGetErr, recordsGetRes) {
-            if (recordsGetErr) done(recordsGetErr);
+            if (recordsGetErr) return  done(recordsGetErr);
             recordsGetRes.status.should.be.within(200, 399);
             var record = recordsGetRes.body;
             record.should.be.an.Object('incorrect record returned:'+cont.id)
@@ -236,7 +236,7 @@ describe('Record CRUD:', function() {
         auth(cont.credentials, function () {
           agent.put(urlPrefix+'/'+cont.record._id).send(cont.recordSend).expect(200)
             .end(function(recordsGetErr, recordsGetRes) {
-              if (recordsGetErr) done(recordsGetErr);
+              if (recordsGetErr) return done(recordsGetErr);
 //              recordsGetRes.status.should.be.within(200, 399);
               agent.put(urlPrefix+'/'+cont.record._id).end(function(recErr, recRes){
                 if (recErr) done(recErr);
@@ -293,7 +293,7 @@ describe('Record CRUD:', function() {
       it('should return list ot user`s records', function (done) {
         auth(cont.credentials, function () {
           agent.get(urlPrefix).end(function(recordsGetErr, recordsGetRes) {
-            if (recordsGetErr) done(recordsGetErr);
+            if (recordsGetErr) return done(recordsGetErr);
 //            should.not.exist(recordsGetErr, 'error getting records:'+cont.id);
             recordsGetRes.status.should.be.within(200, 399);
             var records = recordsGetRes.body;
