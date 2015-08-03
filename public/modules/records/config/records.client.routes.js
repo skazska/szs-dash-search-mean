@@ -14,12 +14,6 @@ angular.module('records').config(['$stateProvider',
 				url: '/list',
 				templateUrl: 'modules/records/views/list-record.client.view.html'
 			})
-/*
-			.state('record.create', {
-				url: '/create',
-				templateUrl: 'modules/records/views/edit-record.client.view.html'
-			})
- */
 			.state('record.one', {
 				abstract: true,
 //				url: '/:recordId',

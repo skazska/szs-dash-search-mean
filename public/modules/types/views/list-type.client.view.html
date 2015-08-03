@@ -1,0 +1,24 @@
+<div class="list-group" data-ng-init="list()">
+    <div class="pull-right" data-ng-show="((authentication.user))">
+        <a class="btn btn-primary" ui-sref="type.create({typeId: type._id})">
+            <i class="glyphicon glyphicon-plus"></i>
+        </a>
+    </div>
+    <div class="page-header" >
+        <h1>type list</h1>
+    </div>
+    <a data-ng-repeat="type in types" ui-sref="type.one.view({typeId: type._id})" class="list-group-item">
+        <small class="list-group-item-text">
+            Posted on
+            <span data-ng-bind="type.created | date:'medium'"></span>
+            by
+            <span data-ng-bind="type.user.displayName"></span>
+        </small>
+        <h4 class="list-group-item-heading" data-ng-bind="type._id"></h4>
+    </a>
+    <div class="alert alert-warning text-center" data-ng-hide="(!types.$resolved || types.length)">
+        No Types yet, why don&quot;t you <a ui-sref="type.one.create">create
+        one</a>?
+    </div>
+
+</div>

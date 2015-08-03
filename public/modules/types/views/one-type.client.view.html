@@ -1,0 +1,27 @@
+<section data-ng-init="init()">
+    <small data-ng-show="type.user || type.created">
+        <em class="text-muted">
+            Posted on
+            <span data-ng-bind="type.created | date:'mediumDate'"></span>
+            by
+            <span data-ng-bind="type.user.displayName"></span>
+        </em>
+        <hr>
+    </small>
+    <div class="pull-right" data-ng-show="(type) &&((authentication.user) && (authentication.user._id == type.user._id))">
+        <a class="btn btn-primary" ui-sref="type.one.edit({typeId: type._id})">
+            <i class="glyphicon glyphicon-edit"></i>
+        </a>
+        <a class="btn btn-primary"
+           ui-sref="type.one.view.delete({typeId: type._id})">
+            <!--data-ng-click="remove();"-->
+            <i class="glyphicon glyphicon-trash"></i>
+        </a>
+    </div>
+    <div class="page-header" >
+        <h1><span data-ng-hide="type._id">New</span>
+            Type
+            <span data-ng-bind="type._id"></h1>
+    </div>
+    <section ui-view></section>
+</section>

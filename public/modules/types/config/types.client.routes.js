@@ -4,22 +4,37 @@
 angular.module('types').config(['$stateProvider',
 	function($stateProvider) {
 		// Types state routing
-		$stateProvider.
-		state('listTypes', {
-			url: '/types',
-			templateUrl: 'modules/types/views/list-types.client.view.html'
-		}).
-		state('createType', {
-			url: '/types/create',
-			templateUrl: 'modules/types/views/create-type.client.view.html'
-		}).
-		state('viewType', {
-			url: '/types/:typeId',
-			templateUrl: 'modules/types/views/view-type.client.view.html'
-		}).
-		state('editType', {
-			url: '/types/:typeId/edit',
-			templateUrl: 'modules/types/views/edit-type.client.view.html'
-		});
+		$stateProvider
+			.state('type', {
+				abstract: true,
+				url: '/types',
+				templateUrl: 'modules/types/views/type.client.view.html'
+			})
+			.state('type.list', {
+				url: '/list',
+				templateUrl: 'modules/types/views/list-type.client.view.html'
+			})
+			.state('type.one', {
+				abstract: true,
+//				url: '/:typeId',
+				templateUrl: 'modules/types/views/one-type.client.view.html'
+			})
+			.state('type.one.create', {
+				url: '/create',
+				templateUrl: 'modules/types/views/edit-type.client.view.html'
+			})
+			.state('type.one.view', {
+				url: '/:typeId/view',
+				templateUrl: 'modules/types/views/view-type.client.view.html'
+			})
+			.state('type.one.edit', {
+				url: '/:typeId/edit',
+				templateUrl: 'modules/types/views/edit-type.client.view.html'
+			})
+			.state('type.one.view.delete', {
+				url: '/:typeId/delete',
+				templateUrl: 'modules/types/views/del-type.client.view.html'
+			})
+		;
 	}
 ]);
