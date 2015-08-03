@@ -124,7 +124,10 @@ exports.delete = function(req, res) {
 exports.typeByID = function(req, res, next, id) { 
 	Type.findById(id).populate('user', 'displayName').exec(function(err, type) {
 		if (err) return next(err);
-		if (! type) return next(new Error('Failed to load Type ' + id));
+		if (! type)
+			return res.status(404).send({
+				message: errorHandler.getErrorMessage(new Error('Failed to load Type ' + id))
+			});
 		req.type = type ;
 		next();
 	});

@@ -56,7 +56,7 @@ describe('Type Model Unit Tests:', function() {
 	});
 
 	describe('Method Save', function() {
-		it('should start with no "opt" type', function(done){
+		it('should start with no  type', function(done){
 			Type.find(function(err, types) {
 				types.should.have.length(0);
 				done();

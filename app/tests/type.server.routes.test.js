@@ -3,6 +3,7 @@
 var should = require('should'),
 	request = require('supertest'),
 	async = require('async'),
+	_ = require('lodash'),
 	app = require('../../server'),
 	mongoose = require('mongoose'),
 	User = mongoose.model('User'),
@@ -81,6 +82,17 @@ function auth(credentials, next){
 		});
 }
 
+function noAuth(next){
+	//authenticating
+	agent.get('/auth/signout')
+//		.send(credentials)
+//		.expect(200)
+		.end(function(signoutErr, signinRes) {
+			if (signoutErr) return next(signoutErr);
+			next();
+		});
+}
+
 
 /**
  * Type routes tests
@@ -123,10 +135,14 @@ describe('Type CRUD tests', function() {
 //	beforeEach(function(done) {
 //		done();
 //	});
+	afterEach(function(done) {
+		noAuth(done);
+	});
+
 
 	after(function(done){
-		Type.remove();
-		User.remove();
+		Type.remove().exec();
+		User.remove().exec();
 		done();
 	});
 
@@ -140,16 +156,16 @@ describe('Type CRUD tests', function() {
 				auth(test.credentials, function (authErr) {
 
 					if (authErr) return done(authErr);
-					var data = test.postData;
+					var data = _.assign({}, test.postData);
 					data._id= '345234FFA2345234FFA2345234FFA2A3';
 					agent.post(urlPrefix).send(data).expect(400, done);
 				});
 			});
-			async.each(['title, viewInListTpl', 'viewTpl', 'editTpl'],function(field){
-				it('should respond 400 "Please fill Type title" when POST with no or empty '+field+':'+testId,function(done){
+			async.each(['title', 'viewInListTpl', 'viewTpl', 'editTpl'],function(field){
+				it('should respond 400 "Please fill Type '+field+'" when POST with no or empty '+field+':'+testId,function(done){
 					auth(test.credentials, function (authErr) {
 						if (authErr) return done(authErr);
-						var data = test.postData;
+						var data = _.assign({}, test.postData);
 						data[field] = '';
 						agent.post(urlPrefix).send(data).expect(400, done);
 					});
@@ -177,8 +193,8 @@ describe('Type CRUD tests', function() {
 			it('should respond with JSON array containing inserted type data objects: '+testId, function (done) {
 				agent.get(urlPrefix).end(function (err, res) {
 					if (err) return done(err);
-					res.body.should.be.an.Array();
-					res.body.should.containEql({
+					res.body.should.be.an.Array().with.length(1);
+					res.body[0].should.have.properties({
 						_id: test.type._id,
 						title: test.type.title
 					});
@@ -192,31 +208,32 @@ describe('Type CRUD tests', function() {
 		tests.forEach(function(test){
 			var testId = test.id;
 			it('should require authentication:'+testId,function(done){
-				agent.put(urlPrefix+'/'+data._id).send(data).expect(401, done);
+
+				agent.put(urlPrefix+'/'+test.type._id).send(test.type).expect(401, done);
 			});
-			it('should respond 404 when wrong typeIt are given: '+testId, function(){
+			it('should respond 404 when wrong typeIt are given: '+testId, function(done){
 				auth(test.credentials, function (authErr) {
 					if (authErr) return done(authErr);
-					var data = test.postData;
-					data._id= '345234FFA2345234FFA2345234FFA2A3';
-					agent.put(urlPrefix+'/'+data._id).send(data).expect(400, done);
+					var data = _.assign({}, test.postData);
+					data._id= '55bf3ba49b27fc9e0e5647ba';
+					agent.put(urlPrefix+'/'+data._id).send(data).expect(404, done);
 				});
 			});
-			it('should respond 400 "resource id does not match object id" if data contains _id and it not match :typeId: '+testId, function(){
+			it('should respond 400 "resource id does not match object id" if data contains _id and it not match :typeId: '+testId, function(done){
 				auth(test.credentials, function (authErr) {
 					if (authErr) done(authErr);
-					var data = test.postData;
-					data._id= '345234FFA2345234FFA2345234FFA2A3';
-					agent.put(urlPrefix+'/'+test.type._id).send(test.type).expect(400, done);
+					var data = _.assign({}, test.type);
+					data._id= '55bf3ba49b27fc9e0e5647ba';
+					agent.put(urlPrefix+'/'+test.type._id).send(data).expect(400, done);
 				});
 			});
-			async.each(['title, viewInListTpl', 'viewTpl', 'editTpl'],function(field){
+			async.each(['title', 'viewInListTpl', 'viewTpl', 'editTpl'],function(field){
 				it('should respond 400 "Please fill Type title" when POST with no or empty '+field+':'+testId,function(done){
-					var data = test.postData;
+					var data = _.assign({}, test.type);
 					auth(test.credentials, function (authErr) {
 						if (authErr) return done(authErr);
 						data[field] = '';
-						agent.put(urlPrefix).send(data).expect(400, done);
+						agent.put(urlPrefix+'/'+test.type._id).send(data).expect(400, done);
 					});
 				});
 			});
@@ -224,7 +241,7 @@ describe('Type CRUD tests', function() {
 				auth(test.credentials, function (authErr) {
 					if (authErr) done(authErr);
 					test.type.title = 'UPDATED';
-					agent.put(urlPrefix+'/'+data._id).send(test.type).end(function (httpErr, httpRes) {
+					agent.put(urlPrefix+'/'+test.type._id).send(test.type).end(function (httpErr, httpRes) {
 						if (httpErr) return done(httpErr);
 						test.type = httpRes.body;
 //						var type = httpRes.body;
@@ -243,7 +260,8 @@ describe('Type CRUD tests', function() {
 			it('should respond with type_data had been PUT: '+testId, function (done) {
 				agent.get(urlPrefix + '/' + test.type._id).end(function (err, res) {
 					if (err) return done(err);
-					res.body.should.containEql(test.type);
+					res.body.should.have.properties({_id: test.type._id, title: test.type.title});
+					done();
 				});
 			});
 		});
@@ -251,19 +269,19 @@ describe('Type CRUD tests', function() {
 	describe('DELETE: fires on /types/:typeId DELETE  uses types.delete', function(){
 		tests.forEach(function(test) {
 			var testId = test.id;
-			it('should require authorization', function (done) {
+			it('should require authorization: '+testId, function (done) {
 				agent.delete(urlPrefix + '/' + test.type._id).expect(401, done);
 			});
-			it('should respond 404 when wrong typeId are given', function (done) {
+			it('should respond 404 when wrong typeId are given: '+testId, function (done) {
 				auth(test.credentials, function (authErr) {
 					if (authErr) return done(authErr);
-					agent.delete(urlPrefix + '/345234FFA2345234FFA2345234FFA2A3').expect(404, done);
+					agent.delete(urlPrefix + '/55bf3ba49b27fc9e0e5647ba').expect(404, done);
 				});
 			});
-			it('/types/:typeId GET should respond 404 after DELETE with :typeId', function (done) {
+			it('/types/:typeId GET should respond 404 after DELETE with :typeId: '+testId, function (done) {
 				auth(test.credentials, function (authErr) {
 					if (authErr) return done(authErr);
-					agent.delete(urlPrefix + '/' + data._id).expect(200).end(function (err, res) {
+					agent.delete(urlPrefix + '/' + test.type._id).expect(200).end(function (err, res) {
 						if (err) return done(err);
 						agent.get(urlPrefix + '/' + test.type._id).expect(404, done);
 					});
