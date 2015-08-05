@@ -27,24 +27,22 @@ var TypeSchema = new Schema({
 	},
   viewInListTpl: {
     type: String,
-    default: '',
-    required: 'Please fill Type viewInListTpl',
+    default: 'text',
     trim: true
   },
   viewTpl: {
     type: String,
-    default: '',
-    required: 'Please fill Type viewTpl',
+    default: 'text',
     trim: true
   },
   editTpl: {
     type: String,
-    default: '',
-    required: 'Please fill Type editTpl',
+    default: 'text',
     trim: true
   },
   modelValidator: {
     type: String,
+    default: 'text',
     trim: true
   },
 	created: {
@@ -56,5 +54,22 @@ var TypeSchema = new Schema({
 		ref: 'User'
 	}
 });
+
+TypeSchema.pre('save', function (next) {
+  if (this.viewInListTpl == '') {
+    this.viewInListTpl = 'text';
+  }
+  if (this.viewTpl == '') {
+    this.viewTpl = 'text';
+  }
+  if (this.editTpl == '') {
+    this.editTpl = 'text';
+  }
+  if (this.modelValidator == '') {
+    this.modelValidator = 'text';
+  }
+  next();
+});
+
 
 mongoose.model('Type', TypeSchema);

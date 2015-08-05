@@ -11,7 +11,9 @@ var mongoose = require('mongoose'),
  */
 var RecordSchema = new Schema({
   type: {
-    type: String
+    type: Schema.Types.ObjectId,
+    ref: 'Type',
+    required: 'Please select type'
   },
 	items: [{
     type: Schema.Types.ObjectId,

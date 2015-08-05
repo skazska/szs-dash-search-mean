@@ -8,6 +8,7 @@ var should = require('should'),
 	User = mongoose.model('User'),
   Option = mongoose.model('Option'),
   OptItem = mongoose.model('OptItem'),
+  Type = mongoose.model('Type'),
 	Record = mongoose.model('Record'),
 	agent = request.agent(app);
 
@@ -46,7 +47,7 @@ var urlPrefix = '/search-api/records';
  * Record routes tests
  */
 describe('Record CRUD:', function() {
-  var user1, user2, option, optItem1, optItem2, optItem3, record;
+  var user1, user2, option, optItem1, optItem2, optItem3, type, record;
   user1 = new User({
     firstName: 'Full',
     lastName: 'Name',
@@ -82,19 +83,21 @@ describe('Record CRUD:', function() {
     id: 'Item3',
     option:option,
   });
-
+  type = Type({
+    title: 'type'
+  })
   var conts = [
     { id: 'test1',
       user:user1, credentials: {username:user1.username, password:user1.password},
       otherUser:user2, otherCredentials: {username:user2.username, password:user2.password},
-      recordSend:new Record({items:[optItem1._id, optItem2._id],values:['first','second']}),
-      record:new Record({items:[optItem1, optItem2],values:['first','second']})
+      recordSend:new Record({type: type._id, items:[optItem1._id, optItem2._id],values:['first','second']}),
+      record:new Record({type: type, items:[optItem1, optItem2],values:['first','second']})
     },
     { id: 'test2', user:user2,
       credentials: {username:user2.username, password:user2.password},
       otherUser:user1, otherCredentials: {username:user1.username, password:user1.password},
-      recordSend:new Record({items: [optItem1._id],values: [ 'third' ]}),
-      record:new Record({items: [optItem1],values: [ 'third' ]})
+      recordSend:new Record({type: type._id, items: [optItem1._id],values: [ 'third' ]}),
+      record:new Record({type: type, items: [optItem1],values: [ 'third' ]})
     }
   ];
 
@@ -103,7 +106,7 @@ describe('Record CRUD:', function() {
     async.series([
       function(callback){
         async.eachSeries(
-          [user1, user2, option, optItem1, optItem2, optItem3 ],
+          [user1, user2, option, optItem1, optItem2, optItem3, type ],
           function(model, cb){
             model.save(function(err, data) {
               should.not.exist(err, 'Error preparing model ');
@@ -128,6 +131,7 @@ describe('Record CRUD:', function() {
     User.remove().exec();
     Option.remove().exec();
     OptItem.remove().exec();
+    Type.remove().exec();
     Record.remove().exec();
     done();
   });

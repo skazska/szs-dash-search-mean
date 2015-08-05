@@ -10,13 +10,14 @@ var should = require('should'),
   User = mongoose.model('User'),
   Option = mongoose.model('Option'),
   OptItem = mongoose.model('OptItem'),
+  Type = mongoose.model('Type'),
   Record = mongoose.model('Record');
 
 
 /**
  * Globals
  */
-var user, option, optItem, record;
+var user, option, optItem, record, type;
 
 /**
  * Record Schema
@@ -58,12 +59,15 @@ describe('Record Model Unit Tests:', function() {
       option:option,
       user:user
     });
+    type = new Type({
+      title: 'type'
+    });
 
     record = new Record({
       user: user
     });
     async.eachSeries(
-      [user, option, optItem],
+      [user, option, optItem, type],
       function(model, cb){
         model.save(function(err, data) {
           should.not.exist(err);
@@ -82,16 +86,19 @@ describe('Record Model Unit Tests:', function() {
         done();
       });
     });
-    it('should be able to show an error when try to save with no items or' +
-      ' values members', function (done) {
-      var records = [new Record({}), new Record({items: []}), new Record({values: []})];
+    it('should show an error when save with no items or' +
+      ' values members or type', function (done) {
+      var records = [
+        new Record({items:[optItem._id]}),
+        new Record({type: '',items:[optItem._id]}),
+        new Record({type: type._id, items:[]}),
+        new Record({type: type._id}),
+      ];
       async.each(
         records,
         function (rec, cb) {
           rec.save(function (err) {
-            should.exist(err);
-            should(errorHandler.getErrorMessage(err)).match(/Please fill/);
-            should(errorHandler.getErrorMessage(err)).match(/item|value/);
+            should.exist(err, rec);
             cb();
           });
         },
@@ -105,7 +112,7 @@ describe('Record Model Unit Tests:', function() {
     it('should save with some items and set actualUntil to now +30 days', function (done) {
       record.items = [optItem._id];
       record.values = ['val'];
-      record.type = 'tp1';
+      record.type = type._id;
       var dt1 = new Date(Date.now() + 1000*60*60*24*30);
       record.save(function (err, data) {
         var dt2 = new Date(Date.now() + 1000*60*60*24*30);
@@ -123,6 +130,7 @@ describe('Record Model Unit Tests:', function() {
     Record.remove().exec();
     OptItem.remove().exec();
     Option.remove().exec();
+    Type.remove().exec();
     User.remove().exec();
 
     done();

@@ -42,11 +42,6 @@ describe('Type Model Unit Tests:', function() {
 		});
 
 		type = new Type({
-			title : 'Title',
-			viewInListTpl : 'ListTpl',
-			viewTpl : 'ViewTpl',
-			editTpl : 'EditTpl',
-			modelValidator : 'ModelValidator',
 			user: user
 		});
 
@@ -63,35 +58,60 @@ describe('Type Model Unit Tests:', function() {
 			});
 		});
 		it('should be able to show an error when try to save with empty title', function(done) {
-			type.title = '';
 			return type.save(function(err) {
 				should.exist(err);
 				done();
 			});
 		});
-		it('should be able to show an error when try to save with empty viewInListTpl', function(done) {
+		it('should save and set viewInListTpl, viewTpl, editTpl and modelValidator to "text" if empty', function(done) {
+			type.title = 'Title';
+			return type.save(function(err, data) {
+				should.not.exist(err);
+				Type.findById(data._id, function(err, types) {
+					if (err) return done(err);
+					types.should.containEql({
+						title : 'Title',
+						viewInListTpl : 'text',
+						viewTpl : 'text',
+						editTpl : 'text',
+						modelValidator : 'text',
+						user: user._id
+					});
+					done();
+				});
+			});
+		});
+
+		it('should save and set viewInListTpl, viewTpl, editTpl and modelValidator to "text" if undefined', function(done) {
+			type.title = 'Title';
 			type.viewInListTpl = '';
-			return type.save(function(err) {
-				should.exist(err);
-				done();
-			});
-		});
-		it('should be able to show an error when try to save with empty viewTpl', function(done) {
 			type.viewTpl = '';
-			return type.save(function(err) {
-				should.exist(err);
-				done();
-			});
-		});
-		it('should be able to show an error when try to save with empty editTpl', function(done) {
-			type.viewInListTpl = '';
-			return type.save(function(err) {
-				should.exist(err);
-				done();
+			type.editTpl = '';
+			type.modelValidator = '';
+			return type.save(function(err, data) {
+				should.not.exist(err);
+				Type.findById(data._id, function(err, types) {
+					if (err) return done(err);
+					types.should.containEql({
+						title : 'Title',
+						viewInListTpl : 'text',
+						viewTpl : 'text',
+						editTpl : 'text',
+						modelValidator : 'text',
+						user: user._id
+					});
+					done();
+				});
 			});
 		});
 
 		it('should save all fields as is', function(done) {
+			type.title = 'Title';
+			type.viewInListTpl = 'ListTpl';
+			type.viewTpl = 'ViewTpl';
+			type.editTpl = 'EditTpl';
+			type.modelValidator = 'ModelValidator';
+
 			return type.save(function(err, data) {
 				should.not.exist(err);
 				Type.findById(data._id, function(err, types) {

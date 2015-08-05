@@ -117,10 +117,6 @@ describe('Type CRUD tests', function() {
 			}),
 			postData: {
 				title : 'Title',
-				viewInListTpl : 'ListTpl',
-				viewTpl : 'ViewTpl',
-				editTpl : 'EditTpl',
-				modelValidator : 'ModelValidator'
 			}
 		}
 	];
@@ -161,17 +157,15 @@ describe('Type CRUD tests', function() {
 					agent.post(urlPrefix).send(data).expect(400, done);
 				});
 			});
-			async.each(['title', 'viewInListTpl', 'viewTpl', 'editTpl'],function(field){
-				it('should respond 400 "Please fill Type '+field+'" when POST with no or empty '+field+':'+testId,function(done){
-					auth(test.credentials, function (authErr) {
-						if (authErr) return done(authErr);
-						var data = _.assign({}, test.postData);
-						data[field] = '';
-						agent.post(urlPrefix).send(data).expect(400, done);
-					});
+			it('should respond 400 "Please fill Type title" when POST with no or empty title:'+testId,function(done){
+				auth(test.credentials, function (authErr) {
+					if (authErr) return done(authErr);
+					var data = _.assign({}, test.postData);
+					data.title = '';
+					agent.post(urlPrefix).send(data).expect(400, done);
 				});
 			});
-			it('should respond type_data with _id property being set',function(done){
+			it('should respond type_data with _id, viewInListTpl, viewTpl, editTpl, modelValidator properties being set ',function(done){
 				auth(test.credentials, function (authErr) {
 					if (authErr) return done(authErr);
 					agent.post(urlPrefix).send(test.postData).expect(200).end(function (httpErr, httpRes) {
@@ -179,7 +173,12 @@ describe('Type CRUD tests', function() {
 						test.type = httpRes.body;
 //						var type = httpRes.body;
 						test.type.should.be.an.Object('incorrect record returned:'+test.id).with.properties(['_id']);
-						test.type.should.containEql(test.postData);
+						test.type.should.containEql({
+							viewInListTpl:'text',
+							viewTpl:'text',
+							editTpl:'text',
+							modelValidator:'text'
+						});
 						done();
 					})
 				});
@@ -227,14 +226,12 @@ describe('Type CRUD tests', function() {
 					agent.put(urlPrefix+'/'+test.type._id).send(data).expect(400, done);
 				});
 			});
-			async.each(['title', 'viewInListTpl', 'viewTpl', 'editTpl'],function(field){
-				it('should respond 400 "Please fill Type title" when POST with no or empty '+field+':'+testId,function(done){
-					var data = _.assign({}, test.type);
-					auth(test.credentials, function (authErr) {
-						if (authErr) return done(authErr);
-						data[field] = '';
-						agent.put(urlPrefix+'/'+test.type._id).send(data).expect(400, done);
-					});
+			it('should respond 400 "Please fill Type title" when POST with no or empty title:'+testId,function(done){
+				var data = _.assign({}, test.type);
+				auth(test.credentials, function (authErr) {
+					if (authErr) return done(authErr);
+					data.title = '';
+					agent.put(urlPrefix+'/'+test.type._id).send(data).expect(400, done);
 				});
 			});
 			it('should respond type_data being PUT',function(done){
@@ -246,7 +243,12 @@ describe('Type CRUD tests', function() {
 						test.type = httpRes.body;
 //						var type = httpRes.body;
 						test.type.should.be.an.Object('incorrect record returned:'+test.id).with.properties(['_id']);
-						test.type.should.containEql(test.type);
+						test.type.should.containEql({
+							viewInListTpl:'text',
+							viewTpl:'text',
+							editTpl:'text',
+							modelValidator:'text'
+						});
 						done();
 					})
 				});
