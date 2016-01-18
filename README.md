@@ -70,7 +70,7 @@ connection to mongodb, init express `/config/express.js` and passport `/config/p
 4. app modules routing from `/app/routes/**/*.js`
 5. HTTP errors
 
-  The `core` module provides route configuration `/arr/routes/core.server.routes.js` to initial front-end pages
+  The `core` module provides route configuration `/app/routes/core.server.routes.js` to initial front-end pages
 generators through `core.server.controller`:
    a. `/` -> `/app/views/index.server.view` 
    b. `/` -> `/app/views/admin.server.view` 
